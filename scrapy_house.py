@@ -173,6 +173,7 @@ class Room():
     start_time = ''  # 开始时间
     end_time = ''  # 结束时间
     # 房屋信息
+    area = '' #面积
     floor = 0  # 楼层
     total_floor = 0  # 总层高
     has_kitchen_bath = 0  # 是否有厨卫
@@ -194,7 +195,7 @@ class Room():
 
         # print(self.cop_name)
         # print(self.cop_addr)
-
+        print(self.area)
         print(self.floor)
         print(self.total_floor)
         print(self.has_kitchen_bath)
@@ -309,6 +310,8 @@ def scrap_detail(url):
 
     tds = room_infos.find_all('td')
 
+    choices = {"房屋面积:":room.area,}
+
     for td in tds:
         # print('')
         # print(td)
@@ -327,6 +330,10 @@ def scrap_detail(url):
         if des_txt == '房屋面积':
             pass
 
+        obj = choices.get(des_txt,None)
+        if obj != None:
+            obj = val_txt
+            print(obj)
         print(des_txt)
         print(val_txt)
 
