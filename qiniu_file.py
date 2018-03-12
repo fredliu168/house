@@ -7,8 +7,8 @@ from qiniu import BucketManager
 import hashlib
 import os
 
-access_key = '9Iq0O8PRfdhsFQ8P6RYmTAPYwqLJx4KdFl_LUM0G'
-secret_key = '44T_PSNoNPNw3MwyUQEogYbBDSsqegLDXUHpNDdj'
+access_key = ''
+secret_key = ''
 
 def MD5(src):
     m = hashlib.md5()
