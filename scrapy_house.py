@@ -13,8 +13,7 @@ headers = {
 }
 
 
-def scrap(url,user_dic):
-
+def scrap(url, user_dic):
     r = requests.get(url, headers=headers)
     # html_doc = r.text
 
@@ -36,7 +35,7 @@ def scrap(url,user_dic):
 
     house_json = []
 
-    #user_dic = {}
+    # user_dic = {}
 
     for tr in house_trs:
         if tr.get('class') != None:
@@ -70,8 +69,8 @@ def scrap(url,user_dic):
                     user = room_detail.user
 
                     user_dic[user.tel_phone] = json.loads(user.toJSON())
-                    #user.descript()
-                    #room_detail.descript()
+                    # user.descript()
+                    # room_detail.descript()
 
 
                 elif td.get('class') == ['tl']:
@@ -131,13 +130,14 @@ def scrap(url,user_dic):
             house_json.append(house_node)
 
             # break
-    #print(house_json)
-    #print(user_dic)
+            # print(house_json)
+            # print(user_dic)
 
-    #print(json.dumps(user_dic, ensure_ascii=False, indent=2))
-    # print(json.dumps(house_json))
+            # print(json.dumps(user_dic, ensure_ascii=False, indent=2))
+            # print(json.dumps(house_json))
 
-    #return user_dic
+            # return user_dic
+
 
 class User():
     # 用户信息
@@ -155,7 +155,6 @@ class User():
                           sort_keys=True, indent=4)
 
     def descript(self):
-
         print(self.user_name)
         print(self.tel_phone)
         print(self.user_name_type)
@@ -163,6 +162,7 @@ class User():
         print(self.user_verify)
         print(self.cop_name)
         print(self.cop_addr)
+
 
 class Room():
     # 发布用户信息
@@ -173,7 +173,7 @@ class Room():
     start_time = ''  # 开始时间
     end_time = ''  # 结束时间
     # 房屋信息
-    area = '' #面积
+    area = ''  # 面积
     floor = 0  # 楼层
     total_floor = 0  # 总层高
     has_kitchen_bath = 0  # 是否有厨卫
@@ -206,8 +206,6 @@ class Room():
 
 def scrap_detail(url):
     room = Room()
-
-
 
     r = requests.get(url, headers=headers)
     soup = BeautifulSoup(r.content, 'lxml')
@@ -261,19 +259,15 @@ def scrap_detail(url):
     # 公司信息
     cop_infos = index_content_extracontact_userinfo.find('table', class_='fix')
     cop_infos_text = cop_infos.get_text()
-    #print(cop_infos_text)
+    # print(cop_infos_text)
 
     user_verify = 1  # 经纪人是否身份认证
     if cop_infos_text.find('未认证') != -1:
         user_verify = 0
 
-
-
     cop_index_begin = cop_infos_text.find('经纪公司:')
 
-
     if cop_index_begin != -1:
-
         cop_index_end = cop_infos_text.find('公司地址:')
         cop_name = cop_infos_text[cop_index_begin + len('经纪公司:'):cop_index_end].strip()
         cop_addr_end = cop_infos_text.find('联系QQ:')
@@ -284,7 +278,6 @@ def scrap_detail(url):
 
     room.user.user_verify = user_verify
 
-
     # print(user_verify)
     # print(cop_name)
     # print(cop_addr)
@@ -292,7 +285,7 @@ def scrap_detail(url):
     # 获取房屋信息
 
     index_content_extracontact_extra = soup.find('div', class_='index_content_extracontact_extra')
-    #print(index_content_extracontact_extra)
+    # print(index_content_extracontact_extra)
 
     tel_phone = index_content_extracontact_extra.find('span', class_='dt-agent-num')
     tel_phone_txt = tel_phone.get_text()
@@ -301,42 +294,49 @@ def scrap_detail(url):
 
     room.user.tel_phone = tel_phone_txt.replace('\n', '').replace('\r', '')
 
-    room_infos = index_content_extracontact_extra.find('table',class_='fix')
+    room_infos = index_content_extracontact_extra.find('table', class_='fix')
 
-    #print(room_infos)
+    # print(room_infos)
 
     for tag_sup in room_infos.find_all('sup'): tag_sup.decompose()
     for tag_a in room_infos.find_all('a'): tag_a.decompose()
 
     tds = room_infos.find_all('td')
 
-    choices = {"房屋面积:":room.area,}
+    dic_room_detail = {}
 
     for td in tds:
         # print('')
         # print(td)
-        des = td.find('span',class_='des')
+        des = td.find('span', class_='des')
         val = td.find('span', class_='val')
 
         des_txt = ''
         val_txt = ''
 
         if des != None:
-            des_txt = des.get_text().replace('\n', '').replace('\r', '').replace('\n','').strip()
+            des_txt = des.get_text().replace('\n', '').replace('\r', '').replace('\n', '').strip()
+            des_txt = des_txt[:-1]
 
-        if val != None:
-            val_txt = val.get_text().replace('\n', '').replace('\r', '').replace('\n','').strip()
+            if val != None:
+                val_txt = val.get_text().replace('\n', '').replace('\r', '').replace('\n', '').strip()
+                if des_txt == '房屋面积':
+                    val_txt = val_txt[:-1]
+                if des_txt == '房屋单价':
+                    val_txt = val_txt[:-3]
 
-        if des_txt == '房屋面积':
-            pass
+            dic_room_detail[des_txt] = val_txt
 
-        obj = choices.get(des_txt,None)
-        if obj != None:
-            obj = val_txt
-            print(obj)
-        print(des_txt)
-        print(val_txt)
 
+
+        # obj = choices.get(des_txt, None)
+        # if obj != None:
+        #     obj = val_txt
+        #     print(obj)
+        # print(des_txt)
+        # print(val_txt)
+
+    print(dic_room_detail)
 
     contact_extra = index_content_extracontact_extra.get_text().replace(' ', '').replace('\n', '')
 
@@ -389,7 +389,6 @@ def scrap_detail(url):
 
 
 if __name__ == '__main__':
-
     user_dic = {}
 
     # for index in range(1,5):
@@ -409,8 +408,8 @@ if __name__ == '__main__':
 
     url = 'https://www.dehuaca.com/house.php?mod=view&post_id=501384'
     # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=504870'
-    #url = 'https://www.dehuaca.com/house.php?mod=view&post_id=499246'
+    # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=499246'
     room_detail = scrap_detail(url)
     room_detail.descript()
     # print(cn2a.convertChineseDigitsToArabic('二'))
-    #pass
+    # pass
