@@ -4,7 +4,6 @@ from bs4 import BeautifulSoup
 import requests
 import os
 import codecs
-import json
 import convertChineseDigitsToArabic as cn2a
 import json
 from collections import namedtuple
@@ -13,6 +12,10 @@ import os
 from mysql_db.mysql import *
 import datetime
 import time
+from  model.room import *
+from  model.image import *
+from  model.user import *
+
 
 g_avatar_dir = '/Users/fred/PycharmProjects/house/avatar'  # 保存头像路径
 
@@ -147,80 +150,6 @@ def scrap(url, user_dic):
     # return user_dic
 
 
-class User():
-    # 用户信息
-    name = ''  # 发布人信息
-    phone = ''  # 联系方式
-    user_type = 0  # 用户特征 个人/经纪人
-    avatar = ''  # 用户头像信息md5值,内容存放到qiniu
-    verify = 0  # 用户是否认证
-    # 公司信息
-    company_name = ''  # 公司名称
-    company_addr = ''  # 公司地址
-
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
-
-    def descript(self):
-        print(self.name)
-        print(self.phone)
-        print(self.user_type)
-        print(self.avatar)
-        print(self.verify)
-        print(self.company_name)
-        print(self.company_addr)
-
-
-class Room():
-    # 发布用户信息
-    #user = User()
-    sha_identity = '' #标识符md5(title+phone)
-    title = ''  # 标题
-    phone = '' # 联系电话
-    # 房间类型
-    post_time = ''  # 发布时间
-    start_time = ''  # 开始时间
-    end_time = ''  # 结束时间
-    # 房屋信息
-    house_name = '' # 楼盘名称
-    config = '' #房屋配置
-    position = '' #房屋地址位置
-
-    price = 0  # 价格
-    area = 0  # 面积
-    floor = 0  # 楼层
-    total_floor = 0  # 总层高
-    has_kitchen_bath = 0  # 是否有厨卫
-    five_year = 0  # 产权是否满五年
-    mark = ''  # 其他描述信息
-    # 房屋图片
-    #images = []
-
-    def toJSON(self):
-        return json.dumps(self, default=lambda o: o.__dict__,
-                          sort_keys=True, indent=4)
-
-    def descript(self):
-        #self.user.descript()
-        print(self.sha_identity)
-        print(self.title)
-        print(self.post_time)
-        print(self.start_time)
-        print(self.end_time)
-        print(self.price)
-        print(self.area)
-        print(self.floor)
-        print(self.total_floor)
-        print(self.has_kitchen_bath)
-        print(self.five_year)
-        print(self.house_name)
-        print(self.config)
-        print(self.position)
-        print(self.mark)
-        #print(self.images)
-
-
 def MD5(src):
     m = hashlib.md5()
     m.update(src.encode())
@@ -270,11 +199,11 @@ def save_avatar(url):
     return ''
 
 
-
-
 def scrap_detail(url):
+
     room = Room()
     user=  User()
+
 
     r = requests.get(url, headers=headers)
     soup = BeautifulSoup(r.content, 'lxml')
@@ -448,16 +377,20 @@ def scrap_detail(url):
 
     tuan_box_tab_images = soup.find_all('div', class_='post_img')
 
+
     images = []
     for img in tuan_box_tab_images:
         # print(img.get('href'))
-        images.append(img.get('href'))
-
+        #images.append(img.get('href'))
         # print(tuan_box_tab)
+        image = RoomImage()
+        image.name = img.get('href')
+        image.room_sha_identity = room.sha_identity
+        images.append(json.loads(image.toJSON()))
 
     #room.images = images
 
-    return room,user
+    return room,user,images
 
     # room.descript()
 
@@ -504,17 +437,19 @@ if __name__ == '__main__':
 
     # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=510104'
     # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=501384'
-    # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=504870'
-    url = 'https://www.dehuaca.com/house.php?mod=view&post_id=499246'
-    room_detail,user = scrap_detail(url)
+    url = 'https://www.dehuaca.com/house.php?mod=view&post_id=501548'# 有房屋图片
+    #url = 'https://www.dehuaca.com/house.php?mod=view&post_id=499246' # 房屋图片空
+    room_detail,user,images = scrap_detail(url)
     room_detail.descript()
     #user.descript()
     #
     print(json.loads(room_detail.toJSON()))
 
-    rooms = []
-    rooms.append(json.loads(room_detail.toJSON()))
-    save_room2db(rooms)
+    print(images)
+
+    # rooms = []
+    # rooms.append(json.loads(room_detail.toJSON()))
+    # save_room2db(rooms)
 
     # print(cn2a.convertChineseDigitsToArabic('二'))
     # pass
