@@ -1,6 +1,17 @@
 
 -- 2018.3.13
 
+-- 图片信息
+
+CREATE TABLE `image` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `room_sha_identity` varchar(64) DEFAULT NULL COMMENT '房屋sha_identity外键',
+  `name` varchar(64) DEFAULT NULL COMMENT '图片名称',
+  `post_time` datetime DEFAULT NULL COMMENT '上传照片时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`),
+  KEY `room_sha_identity` (`room_sha_identity`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 -- 创建用户表
 
 CREATE TABLE `user` (

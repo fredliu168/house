@@ -5,39 +5,63 @@
 import json
 import os
 import requests
-import hashlib
+import util
+import config
+from mysql_db.mysql import *
 
-g_room_img_dir = '' #保存房产图片的路径
-
-def MD5(src):
-    m = hashlib.md5()
-    m.update(src.encode())
-    return m.hexdigest()
 
 class RoomImage():
-    room_sha_identity = '' # 房屋sha_identity外键
-    name = '' # 图片名称
+    room_sha_identity = ''  # 房屋sha_identity外键
+    name = ''  # 图片名称
+    post_time = ''  # 上传照片时间
 
-    def save_image(url):
+    def fetch(self):
         # 保存房产图片
 
-        url_path, img_name = os.path.split(url)
-        avatar_name = "{image_name}.{type}".format(image_name=MD5(url), type=img_name.split('.')[1])
-
+        url_path, img_name = os.path.split(self.name)
+        room_img_name = "{image_name}.{type}".format(image_name=util.MD5(self.name), type=img_name.split('.')[1])
         # 保存头像到本地
-        image_save_path = '{}/{}'.format(g_room_img_dir, avatar_name)
+        image_save_path = '{}/{}/{}'.format(config.g_room_img_dir, self.post_time.split(' ')[0], room_img_name)
+        # 创建保存路径
+        util.mkdir('{}/{}'.format(config.g_room_img_dir, self.post_time.split(' ')[0]))
 
-        ret = requests.get(url)
+        ret = requests.get(self.name)
 
         if ret.status_code == 200:
             with open(image_save_path, 'wb') as file:
                 file.write(ret.content)
-            return avatar_name
+            self.name = room_img_name
+            return True
 
-        return ''
+        self.name = ''
+        return False
+
+    def saveDb(self):
+        # 保存内容到数据库
+        dbManager.insert('image', insert_data=[
+            {"room_sha_identity": self.room_sha_identity, "name": self.name, "post_time": self.post_time}])
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
 
+if __name__ == '__main__':
+    roomImage = RoomImage()
+
+    roomImage.post_time = '2018-03-13 08:50:00'
+    roomImage.name = "https://att.dehuaca.com/house/201803/05/105924f4o3on9n4i56t496.jpg"
+    roomImage.room_sha_identity = '841e61348cc394645fd19d6f65621f6b'
+
+    name = roomImage.fetch()
+    roomImage.saveDb()
+
+    print(name)
+
+    # post_time = '2018-03-13 08:50:00'
+    #
+    # date_post_time = datetime.datetime.strptime(post_time, '%Y-%m-%d %H:%M:%S')
+    #
+    # post_time = date_post_time.strftime('%Y-%m-%d')
+    #
+    # print(post_time)

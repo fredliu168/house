@@ -16,7 +16,6 @@ from  model.room import *
 from  model.image import *
 from  model.user import *
 
-
 g_avatar_dir = '/Users/fred/PycharmProjects/house/avatar'  # 保存头像路径
 
 headers = {
@@ -200,10 +199,8 @@ def save_avatar(url):
 
 
 def scrap_detail(url):
-
     room = Room()
-    user=  User()
-
+    user = User()
 
     r = requests.get(url, headers=headers)
     soup = BeautifulSoup(r.content, 'lxml')
@@ -309,7 +306,7 @@ def scrap_detail(url):
     # 用户电话号码
     user.phone = tel_phone_txt.replace('\n', '').replace('\r', '')
     room.phone = user.phone
-    room.sha_identity = MD5(room.title+user.phone) #作为唯一标识
+    room.sha_identity = MD5(room.title + user.phone)  # 作为唯一标识
 
     room_infos = index_content_extracontact_extra.find('table', class_='fix')
 
@@ -353,17 +350,16 @@ def scrap_detail(url):
 
                 if des_txt == '房屋厨卫':
                     if val_txt == '是':
-                       val_txt = 1
+                        val_txt = 1
                     else:
-                       val_txt = 0
+                        val_txt = 0
                 if des_txt == '产权满五':
                     if val_txt == '是':
-                       val_txt = 1
+                        val_txt = 1
                     else:
-                       val_txt = 0
+                        val_txt = 0
 
             dic_room_detail[dic_room_info_name.get(des_txt)] = val_txt
-
 
     print(dic_room_detail)
 
@@ -377,26 +373,26 @@ def scrap_detail(url):
 
     tuan_box_tab_images = soup.find_all('div', class_='post_img')
 
-
     images = []
     for img in tuan_box_tab_images:
         # print(img.get('href'))
-        #images.append(img.get('href'))
+        # images.append(img.get('href'))
         # print(tuan_box_tab)
         image = RoomImage()
+        image.post_time = room.post_time
         image.name = img.get('href')
         image.room_sha_identity = room.sha_identity
         images.append(json.loads(image.toJSON()))
 
-    #room.images = images
+    # room.images = images
 
-    return room,user,images
+    return room, user, images
 
     # room.descript()
 
 
 def save_user2db(users_dic):
-    #把数据保存到数据库
+    # 把数据保存到数据库
     insert_data = []
 
     for user_dic in users_dic.values():
@@ -407,9 +403,11 @@ def save_user2db(users_dic):
 
     dbManager.insert('user', insert_data=insert_data)
 
+
 def save_room2db(rooms):
-    #把房产数据保存到数据库
+    # 把房产数据保存到数据库
     dbManager.insert('room', insert_data=rooms)
+
 
 if __name__ == '__main__':
     users_dic = {}
@@ -427,8 +425,8 @@ if __name__ == '__main__':
 
     url = 'https://www.dehuaca.com/house.php?mod=list&profile_type_id=3&page={index}'.format(index=1)
     # print(url)
-    #scrap(url, users_dic)
-    #save_user2db(users_dic)
+    # scrap(url, users_dic)
+    # save_user2db(users_dic)
 
 
     # a = dbManager.get(table="user", show_list=['*'])
@@ -437,15 +435,23 @@ if __name__ == '__main__':
 
     # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=510104'
     # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=501384'
-    url = 'https://www.dehuaca.com/house.php?mod=view&post_id=501548'# 有房屋图片
-    #url = 'https://www.dehuaca.com/house.php?mod=view&post_id=499246' # 房屋图片空
-    room_detail,user,images = scrap_detail(url)
-    room_detail.descript()
-    #user.descript()
-    #
-    print(json.loads(room_detail.toJSON()))
+    url = 'https://www.dehuaca.com/house.php?mod=view&post_id=501548'  # 有房屋图片
+    # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=499246' # 房屋图片空
+    #room_detail, user, images = scrap_detail(url)
+    # room_detail.descript()
+    # # user.descript()
+    # #
+    # print(json.loads(room_detail.toJSON()))
 
-    print(images)
+    #print(images)
+
+    images = [{'name': 'https://att.dehuaca.com/house/201803/05/105924f4o3on9n4i56t496.jpg',
+               'post_time': '2018-03-13 08:50:00', 'room_sha_identity': 'baa431b8c6a460df086c05645be6fdea'},
+              {'name': 'https://att.dehuaca.com/house/201803/05/105924zschhgsouhwqmd6j.jpg',
+               'post_time': '2018-03-13 08:50:00', 'room_sha_identity': 'baa431b8c6a460df086c05645be6fdea'}]
+
+
+
 
     # rooms = []
     # rooms.append(json.loads(room_detail.toJSON()))
