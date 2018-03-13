@@ -8,6 +8,13 @@ import json
 import convertChineseDigitsToArabic as cn2a
 import json
 from collections import namedtuple
+import hashlib
+import os
+from mysql_db.mysql import *
+import datetime
+import time
+
+g_avatar_dir = '/Users/fred/PycharmProjects/house/avatar'  # 保存头像路径
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:58.0) Gecko/20100101 Firefox/58.0'
@@ -50,7 +57,6 @@ def scrap(url, user_dic):
             for td in tds:
 
                 if td.get('class') == ['tdimg']:
-
                     tag_a = td.find('a', href=True)
                     tag_img = td.find('img')
 
@@ -60,14 +66,13 @@ def scrap(url, user_dic):
                     house_node['link'] = href
                     house_node['image'] = img
 
-
                     print(href)
 
                     room_detail = scrap_detail(href)
 
                     user = room_detail.user
 
-                    user_dic[user.tel_phone] = json.loads(user.toJSON())
+                    user_dic[user.phone] = json.loads(user.toJSON())
                     # user.descript()
                     # room_detail.descript()
 
@@ -77,37 +82,37 @@ def scrap(url, user_dic):
 
 
                     # elif td.get('class') == ['tl']:
-                #
-                #     for tag_sup in td.find_all('sup'): tag_sup.decompose()
-                #
-                #     # print(td)
-                #     # print('\n\r')
-                #     tag_span = td.find('span')
-                #     tag_p = td.find('p')
-                #
-                #     price = tag_span.get_text()  # 价格
-                #     area = tag_p.get_text().replace(' ', '').split(':')[1].replace('m', '')  # 面积
-                #
-                #     house_node['price'] = float(price)
-                #     house_node['area'] = float(area)
+                    #
+                    #     for tag_sup in td.find_all('sup'): tag_sup.decompose()
+                    #
+                    #     # print(td)
+                    #     # print('\n\r')
+                    #     tag_span = td.find('span')
+                    #     tag_p = td.find('p')
+                    #
+                    #     price = tag_span.get_text()  # 价格
+                    #     area = tag_p.get_text().replace(' ', '').split(':')[1].replace('m', '')  # 面积
+                    #
+                    #     house_node['price'] = float(price)
+                    #     house_node['area'] = float(area)
 
                     # print(price)
                     # print(area)
 
-                # else:
-                #     for tag_sup in td.find_all('span'): tag_sup.decompose()
-                #
-                #     tag_a = td.find('a', href=True)
-                #     tag_div = td.find('div')
-                #
-                #     # print(td)
-                #     # print('\n\r')
-                #     title = tag_a.get_text()  # 获取标题
-                #     attrs = tag_div.get_text().replace(' ', '').replace('\r', '').split('\n')  # 获取房屋属性
-                #     attrs.pop(0)
-                #
-                #     house_node['title'] = title
-                #     house_node['attrs'] = attrs
+                    # else:
+                    #     for tag_sup in td.find_all('span'): tag_sup.decompose()
+                    #
+                    #     tag_a = td.find('a', href=True)
+                    #     tag_div = td.find('div')
+                    #
+                    #     # print(td)
+                    #     # print('\n\r')
+                    #     title = tag_a.get_text()  # 获取标题
+                    #     attrs = tag_div.get_text().replace(' ', '').replace('\r', '').split('\n')  # 获取房屋属性
+                    #     attrs.pop(0)
+                    #
+                    #     house_node['title'] = title
+                    #     house_node['attrs'] = attrs
                     # print(attrs)
                     # for index, attr in enumerate(attrs):
                     #
@@ -133,77 +138,72 @@ def scrap(url, user_dic):
             house_json.append(house_node)
 
             # break
-            #print(house_json)
+            # print(house_json)
             # print(user_dic)
 
             # print(json.dumps(user_dic, ensure_ascii=False, indent=2))
-    print(json.dumps(house_json,ensure_ascii=False, indent=2))
+    print(json.dumps(house_json, ensure_ascii=False, indent=2))
 
-            # return user_dic
+    # return user_dic
 
 
 class User():
     # 用户信息
-    user_name = ''  # 发布人信息
-    tel_phone = ''  # 联系方式
-    user_name_type = ''  # 用户特征 个人/经纪人
-    ava_img_url = ''  # 用户头像信息
-    user_verify = 0  # 用户是否认证
+    name = ''  # 发布人信息
+    phone = ''  # 联系方式
+    user_type = 0  # 用户特征 个人/经纪人
+    avatar = ''  # 用户头像信息md5值,内容存放到qiniu
+    verify = 0  # 用户是否认证
     # 公司信息
-    cop_name = ''  # 公司名称
-    cop_addr = ''  # 公司地址
+    company_name = ''  # 公司名称
+    company_addr = ''  # 公司地址
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
     def descript(self):
-        print(self.user_name)
-        print(self.tel_phone)
-        print(self.user_name_type)
-        print(self.ava_img_url)
-        print(self.user_verify)
-        print(self.cop_name)
-        print(self.cop_addr)
+        print(self.name)
+        print(self.phone)
+        print(self.user_type)
+        print(self.avatar)
+        print(self.verify)
+        print(self.company_name)
+        print(self.company_addr)
 
 
 class Room():
     # 发布用户信息
-    user = User()
-
+    #user = User()
+    sha_identity = '' #标识符md5(title+phone)
     title = ''  # 标题
+    phone = '' # 联系电话
     # 房间类型
     post_time = ''  # 发布时间
     start_time = ''  # 开始时间
     end_time = ''  # 结束时间
     # 房屋信息
+    house_name = '' # 楼盘名称
+    config = '' #房屋配置
+    position = '' #房屋地址位置
+
     price = 0  # 价格
     area = 0  # 面积
     floor = 0  # 楼层
     total_floor = 0  # 总层高
     has_kitchen_bath = 0  # 是否有厨卫
-    has_property_five = 0  # 产权是否满五年
-    mark = '' #其他描述信息
+    five_year = 0  # 产权是否满五年
+    mark = ''  # 其他描述信息
     # 房屋图片
-    images = []
+    #images = []
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
     def descript(self):
-
-
-        self.user.descript()
-        # print(self.user_name)
-        # print(self.tel_phone)
-        # print(self.user_name_type)
-        # print(self.ava_img_url)
-        # print(self.user_verify)
-
-        # print(self.cop_name)
-        # print(self.cop_addr)
-
+        #self.user.descript()
+        print(self.sha_identity)
         print(self.title)
         print(self.post_time)
         print(self.start_time)
@@ -217,10 +217,14 @@ class Room():
         print(self.house_name)
         print(self.config)
         print(self.position)
-
         print(self.mark)
+        #print(self.images)
 
-        print(self.images)
+
+def MD5(src):
+    m = hashlib.md5()
+    m.update(src.encode())
+    return m.hexdigest()
 
 
 def _json_object_hook(d):
@@ -230,8 +234,9 @@ def _json_object_hook(d):
 def json2obj(data):
     return json.loads(data, object_hook=_json_object_hook)
 
+
 # 字典转对象
-def dict2obj(d,obj):
+def dict2obj(d, obj):
     if isinstance(d, list):
         d = [dict2obj(x) for x in d]
     if not isinstance(d, dict):
@@ -240,23 +245,45 @@ def dict2obj(d,obj):
     class C(object):
         pass
 
-    #o = Room()
+    # o = Room()
     for k in d:
-        obj.__dict__[k] = dict2obj(d[k],obj)
+        obj.__dict__[k] = dict2obj(d[k], obj)
     return obj
+
+
+def save_avatar(url):
+    # 保存用户头像
+
+    url_path, img_name = os.path.split(url)
+    avatar_name = "{image_name}.{type}".format(image_name=MD5(url), type=img_name.split('.')[1])
+
+    # 保存头像到本地
+    image_save_path = '{}/{}'.format(g_avatar_dir, avatar_name)
+
+    ret = requests.get(url)
+
+    if ret.status_code == 200:
+        with open(image_save_path, 'wb') as file:
+            file.write(ret.content)
+        return avatar_name
+
+    return ''
+
+
 
 
 def scrap_detail(url):
     room = Room()
+    user=  User()
 
     r = requests.get(url, headers=headers)
     soup = BeautifulSoup(r.content, 'lxml')
     # print(soup.prettify())
 
-    #获取标题 index_content_title
-    index_content_title = soup.find('div', class_='index_content_title').find('h1').get_text().replace('[出售]','')
+    # 获取标题 index_content_title
+    index_content_title = soup.find('div', class_='index_content_title').find('h1').get_text().replace('[出售]', '')
 
-    #print(index_content_title)
+    # print(index_content_title)
 
     room.title = index_content_title
 
@@ -274,11 +301,16 @@ def scrap_detail(url):
 
     post_time = post_time_label[post_time_label.find(':') + 1:].strip()  # 发布时间
     start_time = subtitle_infos[1].strip().split(':')[1].strip()  # 开始时间
-    end_time = subtitle_infos[2].strip().split(':')[1].strip()  # 结束时间
+    end_time = subtitle_infos[2].strip().split(':')[1].strip()  # 结束时间S
 
-    room.post_time = post_time
-    room.start_time = start_time
-    room.end_time = end_time
+    # 时间转成标准形式
+    date_post_time = datetime.datetime.strptime(post_time, '%Y-%m-%d %H:%M')
+    date_start_time = datetime.datetime.strptime(start_time, '%Y-%m-%d')
+    date_end_time = datetime.datetime.strptime(end_time, '%Y-%m-%d')
+
+    room.post_time = date_post_time.strftime('%Y-%m-%d %H:%M:%S')
+    room.start_time = date_start_time.strftime('%Y-%m-%d %H:%M:%S')
+    room.end_time = date_end_time.strftime('%Y-%m-%d %H:%M:%S')
 
     # print(post_time)
     # print(start_time)
@@ -297,13 +329,17 @@ def scrap_detail(url):
         ' ')
     # print(user_name_infos)
     user_name = user_name_infos[0]
-    user_name_type = user_name_infos[1]
+    user_type = user_name_infos[1]
     # print(user_name)
     # print(user_name_type)  # 是否经济人还是个人发布
 
-    room.user.user_name = user_name
-    room.user.user_name_type = user_name_type
-    room.user.ava_img_url = ava_img_url
+    if user_type == '个人':
+        user.type = 0
+    elif user_type == '经纪人':
+        user.type = 1
+
+    user.name = user_name
+    user.avatar = ava_img_url
 
     # 公司信息
     cop_infos = index_content_extracontact_userinfo.find('table', class_='fix')
@@ -322,14 +358,10 @@ def scrap_detail(url):
         cop_addr_end = cop_infos_text.find('联系QQ:')
         cop_addr = cop_infos_text[cop_index_end + len('公司地址:'):cop_addr_end].strip()
 
-        room.user.cop_name = cop_name
-        room.user.cop_addr = cop_addr
+        user.company_name = cop_name
+        user.company_addr = cop_addr
 
-    room.user.user_verify = user_verify
-
-    # print(user_verify)
-    # print(cop_name)
-    # print(cop_addr)
+    user.verify = user_verify
 
     # 获取房屋信息
 
@@ -345,7 +377,10 @@ def scrap_detail(url):
     # print(tel_phone_txt)
     # print(index_content_extracontact_extra.get_text().replace(' ', '').replace('\n', ''))
 
-    room.user.tel_phone = tel_phone_txt.replace('\n', '').replace('\r', '')
+    # 用户电话号码
+    user.phone = tel_phone_txt.replace('\n', '').replace('\r', '')
+    room.phone = user.phone
+    room.sha_identity = MD5(room.title+user.phone) #作为唯一标识
 
     room_infos = index_content_extracontact_extra.find('table', class_='fix')
 
@@ -379,64 +414,35 @@ def scrap_detail(url):
             if val != None:
                 val_txt = val.get_text().replace('\n', '').replace('\r', '').replace('\n', '').strip()
                 if des_txt == '房屋面积':
-                    val_txt = val_txt[:-1]
+                    val_txt = float(val_txt[:-1])
                 if des_txt == '房屋单价':
-                    val_txt = val_txt[:-3]
+                    val_txt = float(val_txt[:-3])
+                if des_txt == '当前楼层':
+                    val_txt = int(val_txt)
+                if des_txt == '总楼层':
+                    val_txt = int(val_txt)
+
+                if des_txt == '房屋厨卫':
+                    if val_txt == '是':
+                       val_txt = 1
+                    else:
+                       val_txt = 0
+                if des_txt == '产权满五':
+                    if val_txt == '是':
+                       val_txt = 1
+                    else:
+                       val_txt = 0
 
             dic_room_detail[dic_room_info_name.get(des_txt)] = val_txt
 
 
-
-
-            # obj = choices.get(des_txt, None)
-            # if obj != None:
-            #     obj = val_txt
-            #     print(obj)
-            # print(des_txt)
-            # print(val_txt)
-
     print(dic_room_detail)
 
-    dict2obj(dic_room_detail,room)
+    dict2obj(dic_room_detail, room)
 
     print(room.pre_price)
 
-    # contact_extra = index_content_extracontact_extra.get_text().replace(' ', '').replace('\n', '')
-    #
-    # print()
-    #
-    # index_floor_begin = contact_extra.find('当前楼层:')
-    # index_floor_end = contact_extra.find('总楼层:')
-    # floor = contact_extra[index_floor_begin + len('当前楼层:'):index_floor_end]
-    #
-    # index_total_floor_end = contact_extra.find('房屋厨卫:')
-    # total_floor = contact_extra[index_floor_end + len('总楼层:'):index_total_floor_end]
-    # has_kitchen_bath_end = contact_extra.find('产权满五:')
-    #
-    # has_kitchen_bath = 0
-    #
-    # if contact_extra[index_total_floor_end + len('房屋厨卫:'):has_kitchen_bath_end] == '有':
-    #     has_kitchen_bath = 1
-    #
-    # has_property_five = 0  # 有产权满五
-    #
-    # if contact_extra[has_kitchen_bath_end + len('产权满五:'):has_kitchen_bath_end + len('产权满五:') + 1] == "是":
-    #     has_property_five = 1
-
-    # print(floor)
-    # print(total_floor)
-    # print(has_kitchen_bath)
-    # print(has_property_five)
-
-    # room.floor = floor
-    # room.total_floor = total_floor
-    # room.has_kitchen_bath = has_kitchen_bath
-    # room.has_property_five = has_property_five
-    # 描述
-
-    room.mark = soup.find('div',{"id": "b1"}).find('div',class_='cl').get_text().replace('?','')
-
-    #print(descript)
+    room.mark = soup.find('div', {"id": "b1"}).find('div', class_='cl').get_text().replace('?', '')
 
     # 获取图片信息
 
@@ -449,15 +455,31 @@ def scrap_detail(url):
 
         # print(tuan_box_tab)
 
-    room.images = images
+    #room.images = images
 
-    return room
+    return room,user
 
     # room.descript()
 
 
+def save_user2db(users_dic):
+    #把数据保存到数据库
+    insert_data = []
+
+    for user_dic in users_dic.values():
+        user = User()
+        dict2obj(user_dic, user)
+        user.avatar = save_avatar(user.avatar)
+        insert_data.append(json.loads(user.toJSON()))
+
+    dbManager.insert('user', insert_data=insert_data)
+
+def save_room2db(rooms):
+    #把房产数据保存到数据库
+    dbManager.insert('room', insert_data=rooms)
+
 if __name__ == '__main__':
-    user_dic = {}
+    users_dic = {}
 
     # for index in range(1,5):
     #
@@ -472,12 +494,27 @@ if __name__ == '__main__':
 
     url = 'https://www.dehuaca.com/house.php?mod=list&profile_type_id=3&page={index}'.format(index=1)
     # print(url)
-    scrap(url, user_dic)
-    #url = 'https://www.dehuaca.com/house.php?mod=view&post_id=510104'
-    #url = 'https://www.dehuaca.com/house.php?mod=view&post_id=501384'
+    #scrap(url, users_dic)
+    #save_user2db(users_dic)
+
+
+    # a = dbManager.get(table="user", show_list=['*'])
+    # print(a)
+
+
+    # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=510104'
+    # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=501384'
     # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=504870'
-    # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=499246'
-    # room_detail = scrap_detail(url)
-    # room_detail.descript()
+    url = 'https://www.dehuaca.com/house.php?mod=view&post_id=499246'
+    room_detail,user = scrap_detail(url)
+    room_detail.descript()
+    #user.descript()
+    #
+    print(json.loads(room_detail.toJSON()))
+
+    rooms = []
+    rooms.append(json.loads(room_detail.toJSON()))
+    save_room2db(rooms)
+
     # print(cn2a.convertChineseDigitsToArabic('二'))
     # pass
