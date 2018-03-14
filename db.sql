@@ -8,6 +8,7 @@ CREATE TABLE `image` (
   `room_sha_identity` varchar(64) DEFAULT NULL COMMENT '房屋sha_identity外键',
   `name` varchar(64) DEFAULT NULL COMMENT '图片名称',
   `post_time` datetime DEFAULT NULL COMMENT '上传照片时间',
+  `path` varchar(512) DEFAULT NULL COMMENT '图片存放路径',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `room_sha_identity` (`room_sha_identity`)

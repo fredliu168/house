@@ -33,9 +33,14 @@ Sequel pro: 数据操作软件
 # 数据结构定义
 
 
-docker 安装 mysql
+使用Docker安装mysql搭建数据库开发环境
+
+> 容器相关操作可以参考该文章<Docker — 从入门到实践> https://www.gitbook.com/book/yeasy/docker_practice
+
+Mysql Docker 操作指南
 
 > https://hub.docker.com/_/mysql
+ 
 
 数据库存放本地目录
 
@@ -54,6 +59,27 @@ docker run --name fred-mysql -p 3306:3306 -v /Users/fred/PycharmProjects/docker_
 查看容器启动情况
 
 docker ps 
+
+```
+
+docker容器常用操作
+
+1.查看终止状态的容器可以用 
+
+```cmd 
+docker container ls -a 
+
+```
+
+2.启动终止状态的容器
+```cmd
+docker container start fred-mysql
+```
+
+3.将一个运行态的容器终止，然后再重新启动它
+
+```cmd
+docker container restart  fred-mysql 
 
 ```
 
@@ -91,8 +117,9 @@ docker ps
 
 id int --自增id
 room_sha_identity varchar(32) -- 房屋sha_identity外键
-name  varchar(32)  --图片名称 
+name      varchar(32)  --图片名称 
 post_time datatime --上传照片时间
+path      varchar(32) --图片存放路径
 ```
 
 ## Room 房屋信息
@@ -149,4 +176,31 @@ post_time datatime --上传照片时间
 4.用户注册发布数据
 
 5.用户认领,绑定采集的手机号码
+
+
+# flask 对外接口
+
+## 1.获取房产信息
+
+
+```html
+
+/GET
+/house/<int:page>
+page 分页 
+```
+## 2.获取用户头像
+
+```html
+/GET
+/avatar/<imageid>
+
+```
+
+## 3.获取房产图片
+
+```html
+/GET
+/image/<imageid>
+```
 

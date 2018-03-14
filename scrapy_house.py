@@ -12,18 +12,17 @@ import os
 from mysql_db.mysql import *
 import datetime
 import time
+import util
 from  model.room import *
 from  model.image import *
 from  model.user import *
-
-g_avatar_dir = '/Users/fred/PycharmProjects/house/avatar'  # 保存头像路径
 
 headers = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:58.0) Gecko/20100101 Firefox/58.0'
 }
 
 
-def scrap(url, user_dic):
+def scrap(url, users_dic):
     r = requests.get(url, headers=headers)
     # html_doc = r.text
 
@@ -70,11 +69,9 @@ def scrap(url, user_dic):
 
                     print(href)
 
-                    room_detail = scrap_detail(href)
+                    room_detail, user, images = scrap_detail(href)
 
-                    user = room_detail.user
-
-                    user_dic[user.phone] = json.loads(user.toJSON())
+                    users_dic[user.phone] = json.loads(user.toJSON())
                     # user.descript()
                     # room_detail.descript()
 
@@ -147,55 +144,6 @@ def scrap(url, user_dic):
     print(json.dumps(house_json, ensure_ascii=False, indent=2))
 
     # return user_dic
-
-
-def MD5(src):
-    m = hashlib.md5()
-    m.update(src.encode())
-    return m.hexdigest()
-
-
-def _json_object_hook(d):
-    return namedtuple('X', d.keys())(*d.values())
-
-
-def json2obj(data):
-    return json.loads(data, object_hook=_json_object_hook)
-
-
-# 字典转对象
-def dict2obj(d, obj):
-    if isinstance(d, list):
-        d = [dict2obj(x) for x in d]
-    if not isinstance(d, dict):
-        return d
-
-    class C(object):
-        pass
-
-    # o = Room()
-    for k in d:
-        obj.__dict__[k] = dict2obj(d[k], obj)
-    return obj
-
-
-def save_avatar(url):
-    # 保存用户头像
-
-    url_path, img_name = os.path.split(url)
-    avatar_name = "{image_name}.{type}".format(image_name=MD5(url), type=img_name.split('.')[1])
-
-    # 保存头像到本地
-    image_save_path = '{}/{}'.format(g_avatar_dir, avatar_name)
-
-    ret = requests.get(url)
-
-    if ret.status_code == 200:
-        with open(image_save_path, 'wb') as file:
-            file.write(ret.content)
-        return avatar_name
-
-    return ''
 
 
 def scrap_detail(url):
@@ -306,7 +254,7 @@ def scrap_detail(url):
     # 用户电话号码
     user.phone = tel_phone_txt.replace('\n', '').replace('\r', '')
     room.phone = user.phone
-    room.sha_identity = MD5(room.title + user.phone)  # 作为唯一标识
+    room.sha_identity = util.MD5(room.title + user.phone)  # 作为唯一标识
 
     room_infos = index_content_extracontact_extra.find('table', class_='fix')
 
@@ -363,7 +311,7 @@ def scrap_detail(url):
 
     print(dic_room_detail)
 
-    dict2obj(dic_room_detail, room)
+    util.dict2obj(dic_room_detail, room)
 
     print(room.pre_price)
 
@@ -383,51 +331,65 @@ def scrap_detail(url):
         image.name = img.get('href')
         image.room_sha_identity = room.sha_identity
         images.append(json.loads(image.toJSON()))
-
+        image.save()
     # room.images = images
+    # 保存房间信息
+
+    room.save()
+    user.save()
 
     return room, user, images
 
     # room.descript()
 
 
-def save_user2db(users_dic):
-    # 把数据保存到数据库
-    insert_data = []
-
-    for user_dic in users_dic.values():
-        user = User()
-        dict2obj(user_dic, user)
-        user.avatar = save_avatar(user.avatar)
-        insert_data.append(json.loads(user.toJSON()))
-
-    dbManager.insert('user', insert_data=insert_data)
-
-
-def save_room2db(rooms):
-    # 把房产数据保存到数据库
-    dbManager.insert('room', insert_data=rooms)
-
-
 if __name__ == '__main__':
     users_dic = {}
 
-    # for index in range(1,5):
+    for index in range(1,10):
+
+        url = 'https://www.dehuaca.com/house.php?mod=list&profile_type_id=3&page={index}'.format(index = index)
+
+        print(url)
+
+        scrap(url,users_dic)
     #
-    #     url = 'https://www.dehuaca.com/house.php?mod=list&profile_type_id=3&page={index}'.format(index = index)
-    #
-    #     print(url)
-    #
-    #     scrap(url,user_dic)
-    #
-    # print(len(user_dic))
+    # print(len(users_dic))
+    # #保存人员信息
+    # User.save_user2db(users_dic)
+
     # print(json.dumps(user_dic, ensure_ascii=False, indent=2))
 
-    url = 'https://www.dehuaca.com/house.php?mod=list&profile_type_id=3&page={index}'.format(index=1)
+    # url = 'https://www.dehuaca.com/house.php?mod=list&profile_type_id=3&page={index}'.format(index=1)
     # print(url)
     # scrap(url, users_dic)
-    # save_user2db(users_dic)
+    #
+    # print(users_dic)
+    # User.save_user2db(users_dic)
 
+    # users_dic = {'13860791523': {'avatar': 'https://uc1.dehua.net/data/avatar/000/32/98/94_avatar_big.jpg',
+    #                              'company_addr': '瓷城大厦1号楼17号店', 'company_name': '德化居佳房产中介', 'name': '李金英',
+    #                              'phone': '13860791523', 'type': 1, 'verify': 0},
+    #              '18350729982': {'avatar': 'https://uc1.dehua.net/data/avatar/000/29/81/30_avatar_big.jpg',
+    #                              'company_addr': '德化三中后面湖中街23栋', 'company_name': '德化融生置业担保', 'name': '小林',
+    #                              'phone': '18350729982', 'type': 1, 'verify': 0},
+    #              '18359510155': {'avatar': 'https://uc1.dehua.net/data/avatar/000/31/74/24_avatar_big.jpg',
+    #                              'company_addr': '福建省德化县东大路', 'company_name': '德化县融生置业担保有限公司', 'name': '温志任',
+    #                              'phone': '18359510155', 'type': 1, 'verify': 0},
+    #              '13960437040': {'avatar': 'https://uc1.dehua.net/data/avatar/001/18/34/28_avatar_big.jpg',
+    #                              'company_addr': '聚兴小区4号楼8店面', 'company_name': '融生置业担保', 'name': 'RS小陈',
+    #                              'phone': '13960437040', 'type': 1, 'verify': 0},
+    #              '13559511862': {'avatar': 'https://uc1.dehua.net/data/avatar/000/80/64/14_avatar_big.jpg',
+    #                              'company_addr': '泉州市桥南片区百捷中央领地2#1002室', 'company_name': '如家房产', 'name': '张宪城',
+    #                              'phone': '13559511862', 'type': 1, 'verify': 0},
+    #              '18065608290': {'avatar': 'https://uc1.dehua.net/data/avatar/001/17/25/27_avatar_big.jpg',
+    #                              'company_addr': '浔北路135号', 'company_name': '亿鑫置业担保', 'name': '赖春琳',
+    #                              'phone': '18065608290', 'type': 1, 'verify': 0},
+    #              '18960498897': {'avatar': 'https://uc1.dehua.net/data/avatar/000/74/11/42_avatar_big.jpg',
+    #                              'company_addr': '南门隆中路14幢（富贵人生隔壁）', 'company_name': '融生置业担保', 'name': '水芙蓉',
+    #                              'phone': '18960498897', 'type': 1, 'verify': 0}}
+    #
+    # User.save_user2db(users_dic)
 
     # a = dbManager.get(table="user", show_list=['*'])
     # print(a)
@@ -435,21 +397,19 @@ if __name__ == '__main__':
 
     # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=510104'
     # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=501384'
-    url = 'https://www.dehuaca.com/house.php?mod=view&post_id=501548'  # 有房屋图片
+    # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=501548'  # 有房屋图片
     # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=499246' # 房屋图片空
-    #room_detail, user, images = scrap_detail(url)
+    # room_detail, user, images = scrap_detail(url)
+
+    # print(json.loads(user.toJSON()))
+    # room_detail.save()
+
     # room_detail.descript()
-    # # user.descript()
+    # user.descript()
     # #
     # print(json.loads(room_detail.toJSON()))
 
-    #print(images)
-
-    images = [{'name': 'https://att.dehuaca.com/house/201803/05/105924f4o3on9n4i56t496.jpg',
-               'post_time': '2018-03-13 08:50:00', 'room_sha_identity': 'baa431b8c6a460df086c05645be6fdea'},
-              {'name': 'https://att.dehuaca.com/house/201803/05/105924zschhgsouhwqmd6j.jpg',
-               'post_time': '2018-03-13 08:50:00', 'room_sha_identity': 'baa431b8c6a460df086c05645be6fdea'}]
-
+    # print(images)
 
 
 

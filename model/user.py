@@ -1,7 +1,32 @@
 # -*- coding: utf-8 -*-
 # 用户类
 # 20180313
+import json
+import util
+import config
+import os
+import requests
 
+from mysql_db.mysql import *
+
+
+def save_avatar(url):
+    # 保存用户头像
+
+    url_path, img_name = os.path.split(url)
+    avatar_name = "{image_name}.{type}".format(image_name=util.MD5(url), type=img_name.split('.')[1])
+
+    # 保存头像到本地
+    image_save_path = '{}/{}'.format(config.g_avatar_dir, avatar_name)
+
+    ret = requests.get(url)
+
+    if ret.status_code == 200:
+        with open(image_save_path, 'wb') as file:
+            file.write(ret.content)
+        return avatar_name
+
+    return ''
 
 class User():
     # 用户信息
@@ -13,6 +38,29 @@ class User():
     # 公司信息
     company_name = ''  # 公司名称
     company_addr = ''  # 公司地址
+
+    @staticmethod
+    def save_user2db(users_dic):
+        # 把数据保存到数据库
+        insert_data = []
+
+        for user_dic in users_dic.values():
+            #print(user_dic)
+            user = User()
+            util.dict2obj(user_dic, user)
+            #print(user.avatar)
+
+            user.avatar = save_avatar(user.avatar)
+            insert_data.append(json.loads(user.toJSON()))
+
+        dbManager.insert('user', insert_data=insert_data)
+
+    def save(self):
+
+        self.avatar = save_avatar(self.avatar)
+        users = []
+        users.append(json.loads(self.toJSON()))
+        dbManager.insert('user', insert_data=users)
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,

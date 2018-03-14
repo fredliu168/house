@@ -3,22 +3,23 @@
 # 20180313
 
 import json
+from mysql_db.mysql import *
 
 
 class Room():
     # 发布用户信息
-    #user = User()
-    sha_identity = '' #标识符md5(title+phone)
+    # user = User()
+    sha_identity = ''  # 标识符md5(title+phone)
     title = ''  # 标题
-    phone = '' # 联系电话
+    phone = ''  # 联系电话
     # 房间类型
     post_time = ''  # 发布时间
     start_time = ''  # 开始时间
     end_time = ''  # 结束时间
     # 房屋信息
-    house_name = '' # 楼盘名称
-    config = '' #房屋配置
-    position = '' #房屋地址位置
+    house_name = ''  # 楼盘名称
+    config = ''  # 房屋配置
+    position = ''  # 房屋地址位置
 
     price = 0  # 价格
     area = 0  # 面积
@@ -27,15 +28,27 @@ class Room():
     has_kitchen_bath = 0  # 是否有厨卫
     five_year = 0  # 产权是否满五年
     mark = ''  # 其他描述信息
+
     # 房屋图片
-    #images = []
+    # images = []
+
+    @staticmethod
+    def save_room2db(rooms):
+        # 把房产数据保存到数据库
+        dbManager.insert('room', insert_data=rooms)
+
+    def save(self):
+        # 把房产数据保存到数据库
+        rooms = []
+        rooms.append(json.loads(self.toJSON()))
+        dbManager.insert('room', insert_data=rooms)
 
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__,
                           sort_keys=True, indent=4)
 
     def descript(self):
-        #self.user.descript()
+        # self.user.descript()
         print(self.sha_identity)
         print(self.title)
         print(self.post_time)

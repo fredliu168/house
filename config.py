@@ -3,3 +3,4 @@
 # 2018.3.13
 
 g_room_img_dir = '/Users/fred/PycharmProjects/house/static/images/room' #保存房产图片的路径
+g_avatar_dir = '/Users/fred/PycharmProjects/house/static/images/avatar'  # 保存头像路径

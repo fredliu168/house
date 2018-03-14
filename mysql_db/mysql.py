@@ -138,6 +138,21 @@ class MysqlManager(object):
         self.__connect.commit()
         self._close_db()
 
+    def exec_sql(self,sql):
+        """
+        执行sql语句
+        :param sql:
+        :return:
+        """
+        self._connect_db()
+        self.__cursor.execute(sql)
+
+        result = self._rows2array(self.__cursor.fetchall())
+
+        self._close_db()
+
+        return result
+
     def get(self, table, show_list, condition=None, get_one=False):
         """
             dbManager.get(table, show_list, [condition, get_one]) -> tupe
