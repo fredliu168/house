@@ -101,7 +101,7 @@ r.phone = u.phone ORDER BY r.`post_time`  LIMIT {page}, {offset}""".format(
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(host='0.0.0.0',port=5000)
 
     # rooms = get_house(1)
     # #

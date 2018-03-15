@@ -204,3 +204,26 @@ page 分页
 /image/<imageid>
 ```
 
+# 怎么搭建微信小程序的本地测试服务器
+
+##问题的提出
+
+Mac环境
+
+> 方便快捷地搭建小程序的测试服务器
+
+> 小程序对于网络请求的URL的特殊要求
+
+> 不能出现端口号
+
+> 不能用localhost
+
+> 必须用https
+
+
+安装nginx
+
+```
+docker run -d --name weixin-nginx -v /Users/fred/PycharmProjects/docker_v/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx
+
+```
