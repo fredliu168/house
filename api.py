@@ -27,9 +27,13 @@ def room_image(imageid):
     :param imageid:
     :return:
     """
+    if imageid == 'default': # 设置默认图片
+        img_local_path = config.g_default_room_dir
+    else:
 
-    ret = dbManager.exec_sql("select path from image where name='{name}'".format(name=imageid))
-    img_local_path = "{}/{}".format(config.g_room_img_dir,ret[0]['path'])
+        ret = dbManager.exec_sql("select path from image where name='{name}'".format(name=imageid))
+        img_local_path = "{}/{}".format(config.g_room_img_dir,ret[0]['path'])
+
     img_stream = ''
     with open(img_local_path, 'rb') as img_f:
         img_stream = img_f.read()

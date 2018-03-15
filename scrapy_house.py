@@ -287,13 +287,16 @@ def scrap_detail(url):
 
             if val != None:
                 val_txt = val.get_text().replace('\n', '').replace('\r', '').replace('\n', '').strip()
+
                 if des_txt == '房屋面积':
                     val_txt = float(val_txt[:-1])
                 if des_txt == '房屋单价':
                     val_txt = float(val_txt[:-3])
                 if des_txt == '当前楼层':
+                    if val_txt == '': val_txt = 0
                     val_txt = int(val_txt)
                 if des_txt == '总楼层':
+                    if val_txt == '': val_txt = 0
                     val_txt = int(val_txt)
 
                 if des_txt == '房屋厨卫':
@@ -346,7 +349,7 @@ def scrap_detail(url):
 if __name__ == '__main__':
     users_dic = {}
 
-    for index in range(1,10):
+    for index in range(2,10):
 
         url = 'https://www.dehuaca.com/house.php?mod=list&profile_type_id=3&page={index}'.format(index = index)
 
