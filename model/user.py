@@ -72,5 +72,5 @@ class User():
         print(self.user_type)
         print(self.avatar)
         print(self.verify)
-        print(self.company_name)
-        print(self.company_addr)
+        print("company_name:{}".format(self.company_name))
+        print("company_addr:{}".format(self.company_addr))
