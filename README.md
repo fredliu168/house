@@ -161,9 +161,46 @@ path      varchar(32) --图片存放路径
     # 房屋图片介绍
     images = []
 
-
-
 ```
+
+## Rent_Room 出租屋信息
+```
+   id           int --自增id
+    sha_identity varchar(32) --md5(title+phone) 判断用户是否重复发布同一内容的房产信息
+    phone        varchar(20) -- 用户联系方式,关联用户 外键
+    title        varchar(256) -- 标题
+    #
+
+    # 房间类型
+    post_time   datetime  -- 发布时间
+    start_time  datetime  --开始时间
+    end_time    datetime  --结束时间
+    #
+
+
+    # 房屋信息
+    house_name  varchar(256) # 楼盘名称
+    config      varchar(256) #房屋配置
+    position    varchar(36) #房屋地址位置
+
+    # 房屋信息
+    price       float  # 价格
+    area        float  # 面积
+    floor       int  # 楼层
+    total_floor int  # 总层高
+    rent_type   varchar(256) #出租类型
+
+    lobby       varchar(36)--客厅
+    live_room   varchar(36)--卧室
+    orientation varchar(36)--朝向
+    type   varchar(36) --住宅/商铺
+    has_kitchen_bath bool  # 是否有厨卫
+    mark        varchar(10240) #其他描述信息
+    # 房屋图片介绍
+    images = []
+```
+
+
 
 # 实现步骤:
 
