@@ -55,6 +55,7 @@ class RentRoom(BaseRoom):
     def __init__(self):
         BaseRoom.__init__(self)
         self.rent_type = ''  # 出租方式
+        self.url = '' # 采集的地址
 
     @staticmethod
     def save_room2db(rooms):

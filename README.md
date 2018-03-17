@@ -169,6 +169,7 @@ path      varchar(32) --图片存放路径
     sha_identity varchar(32) --md5(title+phone) 判断用户是否重复发布同一内容的房产信息
     phone        varchar(20) -- 用户联系方式,关联用户 外键
     title        varchar(256) -- 标题
+    url         varchar(256) --采集的地址
     #
 
     # 房间类型
