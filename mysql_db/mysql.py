@@ -216,7 +216,7 @@ class MysqlManager(object):
                 insert_data = ', '.join(values)
                 # 构建sql语句
                 sql = "insert into {table}({key}) values ({val})".format(table=table, key=key, val=insert_data)
-
+                print(sql)
                 self.__cursor.execute(sql)
                 self.__connect.commit()
         except Exception as error:

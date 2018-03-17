@@ -187,7 +187,7 @@ path      varchar(32) --图片存放路径
     # 房屋信息
     price       float  # 价格
     area        float  # 面积
-    floor       int  # 楼层
+    floor       varchar(36)  # 楼层
     total_floor int  # 总层高
     rent_type   varchar(256) #出租类型
 

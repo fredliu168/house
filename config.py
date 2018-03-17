@@ -9,4 +9,4 @@ g_default_room_dir = '/Users/fred/PycharmProjects/house/static/images/default_ro
 g_default_avatar_dir = '/Users/fred/PycharmProjects/house/static/images/default_avatar.jpg'#默认用户头像图片
 
 #标题栏图片
-g_banner_dir = '/Users/fred/PycharmProjects/house/static/images/banner/banner.png'
+g_banner_dir = '/Users/fred/PycharmProjects/house/static/images/banner/banner.jpg'

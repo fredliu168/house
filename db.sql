@@ -63,3 +63,33 @@ CREATE TABLE `room` (
   KEY `phone` (`phone`),
   KEY `house_name` (`house_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- 租房表
+
+CREATE TABLE `rent_room` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `sha_identity` varchar(32) DEFAULT NULL COMMENT 'md5(title+phone) 判断用户是否重复发布同一内容的房产信息',
+  `phone` varchar(20) DEFAULT NULL COMMENT '用户联系方式,关联用户 外键',
+  `title` varchar(256) DEFAULT NULL COMMENT '标题',
+  `post_time` datetime DEFAULT NULL COMMENT '发布时间',
+  `start_time` datetime DEFAULT NULL COMMENT '开始时间',
+  `end_time` datetime DEFAULT NULL COMMENT '结束时间',
+  `house_name` varchar(256) DEFAULT NULL COMMENT '楼盘名称',
+  `config` varchar(256) DEFAULT NULL COMMENT '房屋配置',
+  `position` varchar(36) DEFAULT NULL COMMENT '房屋地址位置',
+  `price` float DEFAULT NULL COMMENT '价格',
+  `area` varchar(36) DEFAULT NULL COMMENT '面积',
+  `floor` varchar(36) DEFAULT NULL COMMENT '楼层',
+  `total_floor` varchar(36) DEFAULT NULL COMMENT '总层高',
+  `rent_type` varchar(256) DEFAULT NULL COMMENT '出租类型',
+  `lobby` varchar(36) DEFAULT NULL COMMENT '客厅',
+  `live_room` varchar(36) DEFAULT NULL COMMENT '卧室',
+  `orientation` varchar(36) DEFAULT NULL COMMENT '朝向',
+  `type` varchar(36) DEFAULT NULL COMMENT '住宅/商铺',
+  `has_kitchen_bath` int(11) DEFAULT NULL COMMENT '是否有厨卫',
+  `mark` varchar(10240) DEFAULT NULL COMMENT '其他描述信息',
+  `url` varchar(256) DEFAULT NULL COMMENT '采集的地址',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sha_identity` (`sha_identity`),
+  KEY `phone` (`phone`)
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;

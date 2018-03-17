@@ -66,7 +66,7 @@ class RentRoom(BaseRoom):
         # 把房产数据保存到数据库
         rooms = []
         rooms.append(json.loads(self.toJSON()))
-        dbManager.insert('room', insert_data=rooms)
+        dbManager.insert('rent_room', insert_data=rooms)
 
     def descript(self):
         BaseRoom.descript(self)

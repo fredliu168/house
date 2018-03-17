@@ -24,13 +24,36 @@ class RentHouseScrap(object):
     # 抓取出租房屋信息
 
     def __init__(self):
+        self.url = 'https://www.dehuaca.com/house.php?mod=list&profile_type_id=1&page={page}'  # 抓取租房信息
         self.headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:58.0) Gecko/20100101 Firefox/58.0'
         }
 
-    def scrap_detail(self,url):
+    def scrap(self):
+        for page in range(1, 10):
+            self._scrap(self.url.format(page=page))
+
+    def _scrap(self, url):
+        r = requests.get(url, headers=self.headers)
+        soup = BeautifulSoup(r.content, 'lxml')
+        house_table = soup.find('table', class_='dt ')
+        house_trs = house_table.find_all('tr')
+
+        for tr in house_trs:
+            if tr.get('class') != None:
+                tds = tr.find_all('td')
+                for td in tds:
+                    if td.get('class') == ['tdimg']:
+                        tag_a = td.find('a', href=True)
+                        href = tag_a.get('href')  # 获取房屋的详情链接
+                        print(href)
+                        self._scrap_detail(href)
+
+    def _scrap_detail(self, url):
         room = RentRoom()
         user = User()
+
+        room.url = url
 
         r = requests.get(url, headers=self.headers)
         soup = BeautifulSoup(r.content, 'lxml')
@@ -49,7 +72,8 @@ class RentHouseScrap(object):
         # print(index_content_title_subtitle)
         for tag_span in index_content_title_subtitle.find_all('span'): tag_span.decompose()
 
-        subtitle_infos = index_content_title_subtitle.find('div', class_='z').get_text().strip().replace('\r', '').split(
+        subtitle_infos = index_content_title_subtitle.find('div', class_='z').get_text().strip().replace('\r',
+                                                                                                         '').split(
             '\n')
         # subtitle_infos_txt = subtitle_infos
         subtitle_infos.pop(0)
@@ -129,6 +153,9 @@ class RentHouseScrap(object):
 
         room.price = tag_price.get_text().replace('元', '')
 
+        if room.price == '':
+            room.price = 0
+
         tel_phone = index_content_extracontact_extra.find('span', class_='dt-agent-num')
         tel_phone_txt = tel_phone.get_text()
         # print(tel_phone_txt)
@@ -150,7 +177,7 @@ class RentHouseScrap(object):
 
         dic_room_detail = {}
 
-        dic_room_info_name = {'房屋面积': 'area',  '房屋朝向': 'orientation', '房屋类型': 'type', '卧室': 'live_room',
+        dic_room_info_name = {'房屋面积': 'area', '房屋朝向': 'orientation', '房屋类型': 'type', '卧室': 'live_room',
                               '客厅': 'lobby', '当前楼层': 'floor', '总楼层': 'total_floor', '房屋厨卫': 'has_kitchen_bath',
                               '出租方式': 'rent_type',
                               '楼盘名称': 'house_name', '房屋配置': 'config', '所属区域': 'position'}
@@ -169,23 +196,27 @@ class RentHouseScrap(object):
                 des_txt = des_txt[:-1]
 
                 if val != None:
-                    val_txt = val.get_text().replace('\n', '').replace('\r', '').replace('\n', '').replace('M2', '').strip()
+                    val_txt = val.get_text().replace('\n', '').replace('\r', '').replace('\n', '').replace('M2',
+                                                                                                           '').replace(
+                        'm', '').strip()
 
+                    print(val_txt)
                     if des_txt == '房屋面积':
-                        val_txt = float(val_txt[:-1])
+                        if val_txt != '':
+                            val_txt = float(val_txt[:-1])
+
                     if des_txt == '当前楼层':
                         if val_txt == '': val_txt = 0
-                        val_txt = int(val_txt)
+                        val_txt = val_txt
                     if des_txt == '总楼层':
                         if val_txt == '': val_txt = 0
-                        val_txt = int(val_txt)
+                        val_txt = val_txt
 
                     if des_txt == '房屋厨卫':
                         if val_txt == '是':
                             val_txt = 1
                         else:
                             val_txt = 0
-
 
                 dic_room_detail[dic_room_info_name.get(des_txt)] = val_txt
 
@@ -211,14 +242,16 @@ class RentHouseScrap(object):
             image.name = img.get('href')
             image.room_sha_identity = room.sha_identity
             images.append(json.loads(image.toJSON()))
-            # image.save()
+            image.save()
         # room.images = images
         # 保存房间信息
 
-        # room.save()
-        # user.save()
+        room.save()
+        user.save()
 
         print(json.loads(room.toJSON()))
+
+        print(json.loads(user.toJSON()))
 
         print(room.descript())
         print(user.descript())
@@ -229,7 +262,9 @@ class RentHouseScrap(object):
 
 if __name__ == '__main__':
     # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=511357'
-    url = 'https://www.dehuaca.com/house.php?mod=view&post_id=514191'
+    url = 'https://www.dehuaca.com/house.php?mod=view&post_id=374392'
 
     rent_house = RentHouseScrap()
-    rent_house.scrap_detail(url)
+    #rent_house._scrap_detail(url)
+
+    rent_house.scrap()
