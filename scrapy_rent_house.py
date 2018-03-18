@@ -262,9 +262,9 @@ class RentHouseScrap(object):
 
 if __name__ == '__main__':
     # url = 'https://www.dehuaca.com/house.php?mod=view&post_id=511357'
-    url = 'https://www.dehuaca.com/house.php?mod=view&post_id=374392'
+    url = 'https://www.dehuaca.com/house.php?mod=view&post_id=515491'
 
     rent_house = RentHouseScrap()
-    #rent_house._scrap_detail(url)
+    rent_house._scrap_detail(url)
 
-    rent_house.scrap()
+    #rent_house.scrap()

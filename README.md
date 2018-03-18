@@ -30,6 +30,15 @@ mysql 5.7.21
 Sequel pro: 数据操作软件
  ```
 
+
+# cmd 提交代码到git
+
+```
+git add *
+git commit -m "出租房屋采集"
+git push origin master
+```
+
 # 数据结构定义
 
 

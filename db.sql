@@ -21,7 +21,7 @@ CREATE TABLE `user` (
   `password` varchar(256) DEFAULT NULL COMMENT '密码',
   `sex` int(11) NOT NULL DEFAULT '0' COMMENT '性别 0 女 1 男',
   `age` int(11) DEFAULT NULL COMMENT '年龄',
-  `phone` varchar(16) NOT NULL COMMENT '手机号码',
+  `phone` varchar(128) NOT NULL DEFAULT '' COMMENT '手机号码',
   `type` int(11) NOT NULL DEFAULT '0' COMMENT '0 个人 1 经纪人',
   `avatar` varchar(256) DEFAULT NULL COMMENT '用户头像信息',
   `verify` int(11) NOT NULL DEFAULT '0' COMMENT '用户是否认证 0 未认证, 1 认证',
@@ -30,8 +30,7 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `phone_2` (`phone`),
   KEY `phone` (`phone`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
-
+) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=utf8;
 -- 创建房产表
 
 CREATE TABLE `room` (

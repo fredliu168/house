@@ -83,6 +83,45 @@ def avatar(imageid):
     resp = Response(img_stream, mimetype="image/jpeg")
     return resp
 
+@app.route("/rent-room/<sha_identity>")
+def get_rent_room_detail(sha_identity):
+    # 获取租赁信息
+    result = {"code": 10000, "value": "", "msg": ""}
+    sql = """
+        select r.id,area, sha_identity,title,price,r.phone,r.post_time,start_time,end_time,house_name,position,floor,total_floor,has_kitchen_bath,lobby,live_room,orientation,
+    r.type,mark,name,u.type as utype,avatar,verify,company_name,company_addr  from rent_room r left join user u on
+    r.phone = u.phone where sha_identity = '{sha_identity}'
+        """.format(sha_identity=sha_identity)
+
+    print(sql)
+
+    room = dbManager.exec_sql(sql)[0]
+
+    # print(room[0])
+
+    obj_room = Room()
+    util.dict2obj(room, obj_room)
+
+    image_sql = "select name from image i where i.room_sha_identity ='{room_sha_identity}'".format(
+        room_sha_identity=obj_room.sha_identity)
+
+    room['post_time'] = obj_room.post_time.strftime('%Y-%m-%d')
+    room['start_time'] = obj_room.start_time.strftime('%Y-%m-%d')
+    room['end_time'] = obj_room.end_time.strftime('%Y-%m-%d')
+
+    if obj_room.company_name!=None and len(obj_room.company_name) > 10:
+        room['company_name'] = obj_room.company_name[:10] + '...'
+
+    ret = dbManager.exec_sql(image_sql)
+
+    room['image'] = ret
+
+    print(room)
+
+    result["value"] = room
+    result["msg"] = "获取数据成功"
+
+    return result
 
 @app.route("/room/<sha_identity>")
 def get_room_detail(sha_identity):
