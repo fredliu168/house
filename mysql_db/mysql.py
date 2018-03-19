@@ -221,8 +221,11 @@ class MysqlManager(object):
                 self.__connect.commit()
         except Exception as error:
             print(error)
+            return False
         finally:
             self._close_db()
+
+        return True
 
 dbManager = MysqlManager("house", 'root', 'fred123456')
 if __name__ == '__main__':

@@ -203,7 +203,7 @@ class RentHouseScrap(object):
                     print(val_txt)
                     if des_txt == '房屋面积':
                         if val_txt != '':
-                            val_txt = float(val_txt[:-1])
+                            val_txt = val_txt[:-1]
 
                     if des_txt == '当前楼层':
                         if val_txt == '': val_txt = 0
@@ -233,21 +233,22 @@ class RentHouseScrap(object):
         tuan_box_tab_images = soup.find_all('div', class_='post_img')
 
         images = []
-        for img in tuan_box_tab_images:
-            # print(img.get('href'))
-            # images.append(img.get('href'))
-            # print(tuan_box_tab)
-            image = RoomImage()
-            image.post_time = room.post_time
-            image.name = img.get('href')
-            image.room_sha_identity = room.sha_identity
-            images.append(json.loads(image.toJSON()))
-            image.save()
-        # room.images = images
-        # 保存房间信息
 
-        room.save()
-        user.save()
+        if room.save():
+            # 避免重复抓取数据
+            for img in tuan_box_tab_images:
+                # print(img.get('href'))
+                # images.append(img.get('href'))
+                # print(tuan_box_tab)
+                image = RoomImage()
+                image.post_time = room.post_time
+                image.name = img.get('href')
+                image.room_sha_identity = room.sha_identity
+                images.append(json.loads(image.toJSON()))
+                image.save()
+            # room.images = images
+            # 保存房间信息
+            user.save()
 
         print(json.loads(room.toJSON()))
 
@@ -265,6 +266,6 @@ if __name__ == '__main__':
     url = 'https://www.dehuaca.com/house.php?mod=view&post_id=515491'
 
     rent_house = RentHouseScrap()
-    rent_house._scrap_detail(url)
+    #rent_house._scrap_detail(url)
 
-    #rent_house.scrap()
+    rent_house.scrap()

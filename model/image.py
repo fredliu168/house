@@ -8,13 +8,17 @@ import requests
 import util
 import config
 from mysql_db.mysql import *
-
+# from PIL import Image
+# import imagehash
 
 class RoomImage():
-    room_sha_identity = ''  # 房屋sha_identity外键
-    name = ''  # 图片名称
-    post_time = ''  # 上传照片时间
-    path = ''  # 图片存放路径
+
+    def __init__(self):
+        self.room_sha_identity = ''  # 房屋sha_identity外键
+        self.name = ''  # 图片名称
+        self.post_time = ''  # 上传照片时间
+        self.path = ''  # 图片存放路径
+        self.url= ''
 
     def _fetch(self):
         # 保存房产图片到本地目录
@@ -26,6 +30,7 @@ class RoomImage():
         # 创建保存路径
         util.mkdir('{}/{}'.format(config.g_room_img_dir, self.post_time.split(' ')[0]))
 
+        self.url = self.name
         ret = requests.get(self.name)
 
         if ret.status_code == 200:
@@ -42,7 +47,7 @@ class RoomImage():
         # 保存内容到数据库
         dbManager.insert('image', insert_data=[
             {"room_sha_identity": self.room_sha_identity, "name": self.name, "post_time": self.post_time,
-             "path": self.path}])
+             "path": self.path,"url":self.url}])
 
     def save(self):
         # 把图片保存本地,相关字段保存到数据库

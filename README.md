@@ -128,7 +128,8 @@ id int --自增id
 room_sha_identity varchar(32) -- 房屋sha_identity外键
 name      varchar(32)  --图片名称 
 post_time datatime --上传照片时间
-path      varchar(32) --图片存放路径
+path      varchar(512) --图片存放地址
+url       varchar(512) --图片存放地址
 ```
 
 ## Room 房屋信息

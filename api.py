@@ -22,6 +22,23 @@ app = Flask(__name__)
 app.response_class = MyResponse
 
 
+@app.route("/source/<image_name>")
+def source_img(image_name):
+    # 获取资源文件
+
+    img_local_path = "{}/{}".format(config.g_source_img_dir,image_name)
+
+    img_stream = ''
+
+    print(img_local_path)
+
+    with open(img_local_path, 'rb') as img_f:
+        img_stream = img_f.read()
+
+    resp = Response(img_stream, mimetype="image/jpeg")
+    return resp
+
+
 @app.route("/banner")
 def banner():
     # 返回标题图片
