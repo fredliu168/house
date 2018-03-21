@@ -180,6 +180,51 @@ r.phone = u.phone where sha_identity = '{sha_identity}'
 
     return result
 
+@app.route("/rent-search-house/<key_word>/<int:page>")
+def rent_search_house(key_word,page):
+    result = {"code": 10000, "value": "", "msg": ""}
+
+    if page <= 0:
+        result = {"code": -10000, "value": "", "msg": "page 必须大于0"}
+        return result
+
+    sql = """select r.id,area,rent_type,sha_identity,title,price,r.phone,r.post_time,start_time,end_time,house_name,position,
+        floor,total_floor,has_kitchen_bath,lobby,live_room,orientation,
+        r.type,mark,name,u.type as utype,avatar,verify,company_name,company_addr  from rent_room r left join user u on
+        r.phone = u.phone where r.title like '%{key_word}%' or r.house_name like '%{key_word}%'  ORDER BY r.`post_time` DESC  LIMIT {page}, {offset}""".format(key_word = key_word,
+        page=(page - 1) * 10, offset=10)
+
+    print(sql)
+
+    rooms = dbManager.exec_sql(sql)
+
+    for room in rooms:
+        # print(room)
+        obj_room = Room()
+        util.dict2obj(room, obj_room)
+        # print(obj_room.phone)
+        image_sql = "select name from image i where i.room_sha_identity ='{room_sha_identity}'".format(
+            room_sha_identity=obj_room.sha_identity)
+
+        # print(user_sql)
+        if len(obj_room.title) > 32:
+            room['title'] = obj_room.title[:32] + '...'
+
+        room['post_time'] = obj_room.post_time.strftime('%Y-%m-%d')
+        room['start_time'] = obj_room.start_time.strftime('%Y-%m-%d')
+        room['end_time'] = obj_room.end_time.strftime('%Y-%m-%d')
+
+        ret = dbManager.exec_sql(image_sql)
+        #
+        # print(ret)
+        #
+        room['image'] = ret
+
+    result["value"] = rooms
+    result["msg"] = "获取数据成功"
+
+    return result
+
 @app.route("/rent-house/<int:page>")
 def rent_house(page=1):
     # 返回出租房屋
