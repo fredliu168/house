@@ -8,7 +8,8 @@ from mysql_db.mysql import *
 import util
 import config
 from  model.room import *
-import  re
+import re
+
 
 class MyResponse(Response):
     @classmethod
@@ -87,7 +88,7 @@ def avatar(imageid):
     :param imageid:
     :return:
     """
-    if imageid == 'default':  # 设置默认图片
+    if imageid == 'default' or imageid == 'null':  # 设置默认图片
         img_local_path = config.g_default_avatar_dir
     else:
         img_local_path = "{}/{}".format(config.g_avatar_dir, imageid)
@@ -130,6 +131,10 @@ def get_rent_room_detail(sha_identity):
     if obj_room.company_name != None and len(obj_room.company_name) > 10:
         room['company_name'] = obj_room.company_name[:10] + '...'
 
+    # print("room['company_name']:" + room['company_name'])
+    if room['company_name'] == None:
+        room['company_name'] = ''
+
     ret = dbManager.exec_sql(image_sql)
 
     room['image'] = ret
@@ -168,8 +173,12 @@ r.phone = u.phone where sha_identity = '{sha_identity}'
     room['start_time'] = obj_room.start_time.strftime('%Y-%m-%d')
     room['end_time'] = obj_room.end_time.strftime('%Y-%m-%d')
 
-    if len(obj_room.company_name) > 10:
+    if obj_room.company_name!= None and len(obj_room.company_name) > 10:
         room['company_name'] = obj_room.company_name[:10] + '...'
+
+    #print("room['company_name']:" + room['company_name'])
+    if room['company_name'] == None:
+        room['company_name'] = ''
 
     ret = dbManager.exec_sql(image_sql)
 
@@ -183,7 +192,7 @@ r.phone = u.phone where sha_identity = '{sha_identity}'
     return result
 
 
-def get_rent_house(sql,page):
+def get_rent_house(sql, page):
     print(sql)
     result = {"code": 10000, "value": "", "msg": ""}
 
@@ -209,6 +218,10 @@ def get_rent_house(sql,page):
         room['start_time'] = obj_room.start_time.strftime('%Y-%m-%d')
         room['end_time'] = obj_room.end_time.strftime('%Y-%m-%d')
 
+        # print("room['company_name']:"+room['company_name'])
+        if room['company_name'] == None:
+            room['company_name'] = ''
+
         ret = dbManager.exec_sql(image_sql)
         #
         # print(ret)
@@ -220,47 +233,84 @@ def get_rent_house(sql,page):
 
     return result
 
-def rent_house_orderby(orderby):
+
+@app.route("/rent-cond-house/<orderby>/<int:page>")
+def rent_house_orderby(orderby, page):
     # 对租房信息进行排序 orderby = '1_1_1_1'
-    # 第一个条件 1-5
+    # 第1个条件 1-5
     # {'id': 1, 'text': '价格从低到高'},
     # {'id': 2, 'text': '价格从高到低'},
     # {'id': 3, 'text': '面积从小到大'},
     # {'id': 4, 'text': '面积从大到小'},
     # {'id': 5, 'text': '发布时间'}
-    # 第二个条件 1-4
+    # 第2个条件 1-4
     # {'id': 1, 'text': '1000元以下'},
     # {'id': 2, 'text': '1000元-2000元'},
     # {'id': 3, 'text': '2000元-3000元'},
     # {'id': 4, 'text': '3000元以上'}
-    # 第三个条件 1-4
+    # 第3个条件 1-4
     # {'id': 1, 'text': '一房'},
     # {'id': 2, 'text': '两房'},
     # {'id': 3, 'text': '三房'},
     # {'id': 4, 'text': '四房'},
-    # 第四个条件 1-3
+    # 第4个条件 1-3
     # {'id': 1, 'text': '住宅'},
     # {'id': 2, 'text': '商铺'},
     # {'id': 3, 'text': '写字楼'},
-    condition1 = {'0':'','1':'price','2':'price DESC','3':'area','4':'area DESC','5':'post_time'}
-    condition2 = {'0':'','1':'price < 1000','2':'price >= 1000 and price < 2000','3':'price >= 2000 and price < 3000','4':'price >= 3000 '}
-    condition3 = {'0':'','1':'live_room="一间"','2':'live_room="两间"','3':'live_room="三间"','4':'live_room="四间"'}
-    condition4 = {'0': '', '1': 'r.type="住宅"', '2': 'r.type="商铺"', '3': 'r.type="写字楼"'}
 
-    orderby = '1_1_1_1'
+    condition = [
+        {'0': '', '1': 'price < 1000', '2': 'price >= 1000 and price < 2000', '3': 'price >= 2000 and price < 3000',
+         '4': 'price >= 3000 '},
+        {'0': '', '1': 'live_room="一间"', '2': 'live_room="二间"', '3': 'live_room="三间"', '4': 'live_room="四间"'},
+        {'0': '', '1': 'r.type=\"住宅\"', '2': 'r.type="商铺"', '3': 'r.type=\"写字楼\"'}]
 
-    condition =
+    order_dic = {'0': '', '1': 'price', '2': 'price DESC', '3': 'area', '4': 'area DESC', '5': 'post_time'}
 
+    # orderby = '1_0_0_1'
+
+    conditions = orderby[2:].split('_')
+
+    print(conditions)
+    print(condition)
+
+    str_cond = ''
+    for index, element in enumerate(conditions):
+
+        cond = condition[index][element]
+        if cond != '':
+            if str_cond == '':
+                str_cond += ' where '
+            str_cond += cond + ' and '
+
+    if str_cond != '':
+        str_cond = str_cond[:-len(' and ')]
+
+    print(str_cond)
+
+    order_by = 'r.post_time DESC'  # 默认按时间排序
+
+    if order_dic[orderby[0:1]] != '':
+        order_by = order_dic[orderby[0:1]]
+
+    sql = """select r.id,area,rent_type,sha_identity,title,price,r.phone,r.post_time,start_time,end_time,house_name,position,
+            floor,total_floor,has_kitchen_bath,lobby,live_room,orientation,
+            r.type,mark,name,u.type as utype,avatar,verify,company_name,company_addr  from rent_room r left join user u on
+            r.phone = u.phone {cond} ORDER BY {order_by}  LIMIT {page}, {offset}""".format(
+        cond=str_cond, order_by=order_by,
+        page=(page - 1) * 10, offset=10)
+
+    print(sql)
+
+    return get_rent_house(sql, page)
 
 
 @app.route("/rent-search-house/<key_word>/<int:page>")
 def rent_search_house(key_word, page):
-    #对字符进行过滤
+    # 对字符进行过滤
     r1 = u'[a-zA-Z0-9’!"#$%&\'()*+,-./:;<=>?@，。?★、…【】《》？“”‘’！[\\]^_`{|}~]+'  # 用户也可以在此进行自定义过滤字符
     r2 = u'\s+;'
 
     key_word_temp = re.sub(r1, '', key_word)
-
 
     sql = """select r.id,area,rent_type,sha_identity,title,price,r.phone,r.post_time,start_time,end_time,house_name,position,
         floor,total_floor,has_kitchen_bath,lobby,live_room,orientation,
@@ -269,7 +319,7 @@ def rent_search_house(key_word, page):
         key_word=key_word_temp,
         page=(page - 1) * 10, offset=10)
 
-    return get_rent_house(sql,page)
+    return get_rent_house(sql, page)
 
 
 @app.route("/rent-house/<int:page>")
@@ -282,7 +332,96 @@ def rent_house(page=1):
     r.phone = u.phone ORDER BY r.`post_time` DESC  LIMIT {page}, {offset}""".format(
         page=(page - 1) * 10, offset=10)
 
-    return get_rent_house(sql,page)
+    return get_rent_house(sql, page)
+
+
+@app.route("/sell-cond-house/<orderby>/<int:page>")
+def sell_house_orderby(orderby, page):
+    # 对买房信息进行排序 orderby = '1_1_1_1'
+    # 第1个条件 1-5
+    # {'id': 1, 'text': '价格从低到高'},
+    # {'id': 2, 'text': '价格从高到低'},
+    # {'id': 3, 'text': '面积从小到大'},
+    # {'id': 4, 'text': '面积从大到小'},
+    # {'id': 5, 'text': '发布时间'}
+    # 第2个条件 1-4
+    # {'id': 1, 'text': '30万以下'},
+    # {'id': 2, 'text': '30万-60万'},
+    # {'id': 3, 'text': '60万-100万'},
+    # {'id': 4, 'text': '100万以上'}
+    # 第3个条件 1-4
+    # {'id': 1, 'text': '一房'},
+    # {'id': 2, 'text': '两房'},
+    # {'id': 3, 'text': '三房'},
+    # {'id': 4, 'text': '四房'},
+    # 第4个条件 1-3
+    # {'id': 1, 'text': '住宅'},
+    # {'id': 2, 'text': '商铺'},
+    # {'id': 3, 'text': '写字楼'},
+
+    condition = [
+        {'0': '', '1': 'price < 30', '2': 'price >= 30 and price < 60', '3': 'price >= 60 and price < 100',
+         '4': 'price >= 100 '},
+        {'0': '', '1': 'live_room="一间"', '2': 'live_room="二间"', '3': 'live_room="三间"', '4': 'live_room="四间"'},
+        {'0': '', '1': 'r.type=\"住宅\"', '2': 'r.type="商铺"', '3': 'r.type=\"写字楼\"'}]
+
+    order_dic = {'0': '', '1': 'price', '2': 'price DESC', '3': 'area', '4': 'area DESC', '5': 'post_time'}
+
+    # orderby = '1_0_0_1'
+
+    conditions = orderby[2:].split('_')
+
+    print(conditions)
+    print(condition)
+
+    str_cond = ''
+    for index, element in enumerate(conditions):
+
+        cond = condition[index][element]
+        if cond != '':
+            if str_cond == '':
+                str_cond += ' where '
+            str_cond += cond + ' and '
+
+    if str_cond != '':
+        str_cond = str_cond[:-len(' and ')]
+
+    print(str_cond)
+
+    order_by = 'r.post_time DESC'  # 默认按时间排序
+
+    if order_dic[orderby[0:1]] != '':
+        order_by = order_dic[orderby[0:1]]
+
+    sql = """select r.id,pre_price,area,sha_identity,title,price,r.phone,r.post_time,start_time,end_time,house_name,position,
+            floor,total_floor,has_kitchen_bath,lobby,live_room,orientation,
+            r.type,mark,name,u.type as utype,avatar,verify,company_name,company_addr  from room r left join user u on
+            r.phone = u.phone {cond} ORDER BY {order_by}  LIMIT {page}, {offset}""".format(
+        cond=str_cond, order_by=order_by,
+        page=(page - 1) * 10, offset=10)
+
+    #print(sql)
+
+    return get_rent_house(sql, page)
+
+
+@app.route("/sell-search-house/<key_word>/<int:page>")
+def sell_room_search(key_word, page):
+    # 买房查询
+    # 对字符进行过滤
+    r1 = u'[a-zA-Z0-9’!"#$%&\'()*+,-./:;<=>?@，。?★、…【】《》？“”‘’！[\\]^_`{|}~]+'  # 用户也可以在此进行自定义过滤字符
+    r2 = u'\s+;'
+
+    key_word_temp = re.sub(r1, '', key_word)
+
+    sql = """select r.id,area,pre_price,sha_identity,title,price,r.phone,r.post_time,start_time,end_time,house_name,position,
+           floor,total_floor,has_kitchen_bath,lobby,live_room,orientation,
+           r.type,mark,name,u.type as utype,avatar,verify,company_name,company_addr  from room r left join user u on
+           r.phone = u.phone where r.title like '%{key_word}%' or r.house_name like '%{key_word}%'  ORDER BY r.`post_time` DESC  LIMIT {page}, {offset}""".format(
+        key_word=key_word_temp,
+        page=(page - 1) * 10, offset=10)
+
+    return get_rent_house(sql, page)
 
 
 @app.route("/house/<int:page>")
@@ -332,6 +471,9 @@ r.phone = u.phone ORDER BY r.`post_time` DESC  LIMIT {page}, {offset}""".format(
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
+
+    # rent_house_orderby('1_1_1_1', 1)
+
 
     # get_room_detail('bdcb8013124c18f1fb72755d12f19e0d')
     # rooms = get_house(1)

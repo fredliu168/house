@@ -252,6 +252,18 @@ page 分页
 /image/<imageid>
 ```
 
+## 4.查询销售房产
+
+```html
+GET /sell-search-house/<key_word>/<int:page>
+```
+
+## 5.销售房产各种排序
+
+```html
+GET /sell-cond-house/<orderby>/<int:page>
+```
+
 # 怎么搭建微信小程序的本地测试服务器
 
 ##问题的提出

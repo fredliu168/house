@@ -349,7 +349,7 @@ def scrap_detail(url):
 if __name__ == '__main__':
     users_dic = {}
 
-    for index in range(2,10):
+    for index in range(1,10):
 
         url = 'https://www.dehuaca.com/house.php?mod=list&profile_type_id=3&page={index}'.format(index = index)
 
