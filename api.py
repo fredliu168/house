@@ -3,12 +3,12 @@
 # 2018.3.14
 
 from flask import Flask, Response, jsonify
-import datetime
-from mysql_db.mysql import *
 import util
 import config
 from  model.room import *
 import re
+import scrapy_house
+import scrapy_rent_house
 
 
 class MyResponse(Response):
@@ -21,6 +21,39 @@ class MyResponse(Response):
 
 app = Flask(__name__)
 app.response_class = MyResponse
+
+
+@app.route("/scarp-house")
+def scrap_house():
+    # 抓取更新房产数据
+    result = {"code": 10000, "value": "", "msg": "抓取销售楼盘成功"}
+
+    houseScrap = scrapy_house.HouseScrap()
+    try:
+        houseScrap.srcap()
+
+    except ValueError as err:
+        result['msg'] = "抓取销售楼盘错误:{}".format(err)
+        result['code'] = -10000
+
+    return result
+
+@app.route("/scarp-rent-house")
+def scrap_rent_house():
+    # 抓取更新房产数据
+    result = {"code": 10000, "value": "", "msg": "抓取租房成功"}
+
+    rent_house = scrapy_rent_house.RentHouseScrap()
+
+    try:
+        rent_house.scrap()
+    except ValueError as err:
+        result['msg'] = "抓取销售楼盘错误:{}".format(err)
+        result['code'] = -10000
+
+
+
+    return result
 
 
 @app.route("/source/<image_name>")
@@ -173,10 +206,10 @@ r.phone = u.phone where sha_identity = '{sha_identity}'
     room['start_time'] = obj_room.start_time.strftime('%Y-%m-%d')
     room['end_time'] = obj_room.end_time.strftime('%Y-%m-%d')
 
-    if obj_room.company_name!= None and len(obj_room.company_name) > 10:
+    if obj_room.company_name != None and len(obj_room.company_name) > 10:
         room['company_name'] = obj_room.company_name[:10] + '...'
 
-    #print("room['company_name']:" + room['company_name'])
+    # print("room['company_name']:" + room['company_name'])
     if room['company_name'] == None:
         room['company_name'] = ''
 
@@ -400,7 +433,7 @@ def sell_house_orderby(orderby, page):
         cond=str_cond, order_by=order_by,
         page=(page - 1) * 10, offset=10)
 
-    #print(sql)
+    # print(sql)
 
     return get_rent_house(sql, page)
 
@@ -470,7 +503,7 @@ r.phone = u.phone ORDER BY r.`post_time` DESC  LIMIT {page}, {offset}""".format(
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(threaded=True, host='0.0.0.0', port=5000)
 
     # rent_house_orderby('1_1_1_1', 1)
 

@@ -17,18 +17,19 @@
 
 > 2.插入用户数据和房产数据
 
+> 2018.3.23 
+
+> 发布1.0版本,实现卖房和租房模块开发
+
 
 #开发环境:
 
 ```
-python 3.6 
-
-iMAC  macOS 
-
+iMAC  macOS High Sierra 10.13.2
+python 3.6   
 mysql 5.7.21
-
 Sequel pro: 数据操作软件
- ```
+```
 
 
 # cmd 提交代码到git
@@ -37,6 +38,18 @@ Sequel pro: 数据操作软件
 git add *
 git commit -m "出租房屋采集"
 git push origin master
+```
+
+
+## python 生成项目依赖文件
+
+```cmd
+(venv)$ pip freeze >requirement.txt
+```
+安装依赖文件
+
+```cmd
+(venv)$ pip install -r requirement.txt
 ```
 
 # 数据结构定义
@@ -75,6 +88,14 @@ docker ps
 
 
 docker容器常用操作
+
+
+启动配置的容器
+```html
+docker start fred-mysql
+docker start mynginx
+```
+
 
 1.查看终止状态的容器可以用 
 
@@ -231,6 +252,17 @@ url       varchar(512) --图片存放地址
 
 # flask 对外接口
 
+
+抓取销售的房产
+```html
+GET /scarp-house
+```
+
+更新租房信息
+```html
+GET /scarp-rent-house
+ ```
+ 
 ## 1.获取房产信息
 
 

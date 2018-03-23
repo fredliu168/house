@@ -8,8 +8,6 @@ import requests
 import util
 import config
 from mysql_db.mysql import *
-# from PIL import Image
-# import imagehash
 
 class RoomImage():
 

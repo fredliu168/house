@@ -3,22 +3,10 @@
 
 
 from bs4 import BeautifulSoup
-import requests
-import os
-import codecs
-import convertChineseDigitsToArabic as cn2a
-import json
-from collections import namedtuple
-import hashlib
-import os
-from mysql_db.mysql import *
 import datetime
-import time
-import util
 from  model.room import *
 from  model.image import *
 from  model.user import *
-
 
 class RentHouseScrap(object):
     # 抓取出租房屋信息

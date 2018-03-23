@@ -13,6 +13,23 @@ def MD5(src):
     return m.hexdigest()
 
 
+def is_number(s):
+    #判断是否为数字
+    try:
+        float(s)
+        return True
+    except ValueError:
+        pass
+
+    try:
+        import unicodedata
+        unicodedata.numeric(s)
+        return True
+    except (TypeError, ValueError):
+        pass
+
+    return False
+
 
 def mkdir(path):
     '''
