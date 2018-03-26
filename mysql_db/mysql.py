@@ -4,6 +4,8 @@
 # 参考 https://github.com/Nooobita/ToolKit/blob/master/mysql_manager.py
 
 import pymysql
+import config
+
 
 # # 打开数据库连接
 # db = pymysql.connect("127.0.0.1", "root", "fred123456", "house",use_unicode=True, charset="utf8")
@@ -55,7 +57,7 @@ class MysqlManager(object):
             "host": self.__host,
             "port": self.__port,
             "charset": self.__charset,
-            "cursorclass":pymysql.cursors.DictCursor # 设置结果显示成字典
+            "cursorclass": pymysql.cursors.DictCursor  # 设置结果显示成字典
         }
         self.__connect = pymysql.connect(**params)
         self.__cursor = self.__connect.cursor()
@@ -138,7 +140,7 @@ class MysqlManager(object):
         self.__connect.commit()
         self._close_db()
 
-    def exec_sql(self,sql):
+    def exec_sql(self, sql):
         """
         执行sql语句
         :param sql:
@@ -192,7 +194,7 @@ class MysqlManager(object):
         result = []
         for da in data:
             if type(da) is not dict:
-               raise Exception('Format Error: data is not a dict.')
+                raise Exception('Format Error: data is not a dict.')
             result.append(da)
         return result
 
@@ -227,17 +229,19 @@ class MysqlManager(object):
 
         return True
 
-dbManager = MysqlManager("house", 'root', 'fred123456')
-if __name__ == '__main__':
 
+dbManager = MysqlManager(db=config.mysql_db, user=config.mysql_user, passwd=config.mysql_passwd, host=config.mysql_host,
+                         port=config.mysql_port)
+
+if __name__ == '__main__':
     insert_data = [{
-       "name": 'fred',
+        "name": 'fred',
         "phone": '13808545254',
         "verify": 0,
-        "company_name":'苹果公司',
-        "company_addr":'加利福尼亚'
+        "company_name": '苹果公司',
+        "company_addr": '加利福尼亚'
 
     }]
-    #dbManager.insert('user',insert_data=insert_data)
-    a = dbManager.get(table="user",show_list = ['*'])
+    # dbManager.insert('user',insert_data=insert_data)
+    a = dbManager.get(table="user", show_list=['*'])
     print(a)

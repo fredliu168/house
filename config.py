@@ -10,3 +10,10 @@ g_default_avatar_dir = '/Users/fred/PycharmProjects/house/static/images/default_
 g_banner_dir = '/Users/fred/PycharmProjects/house/static/images/banner/banner.png'
 #获取资源文件
 g_source_img_dir = '/Users/fred/PycharmProjects/house/static/images/source'
+
+#mysql
+mysql_passwd = 'house'
+mysql_db = 'fred123456'
+mysql_user = 'root'
+mysql_host = '127.0.0.1'
+mysql_port = 3306
