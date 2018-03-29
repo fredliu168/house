@@ -1,6 +1,5 @@
 beautifulsoup4==4.6.0
 certifi==2018.1.18
-cffi==1.11.5
 chardet==3.0.4
 click==6.7
 Flask==0.12.2
@@ -9,9 +8,7 @@ itsdangerous==0.24
 Jinja2==2.10
 lxml==4.1.1
 MarkupSafe==1.0
-pycparser==2.18
 PyMySQL==0.8.0
-qiniu==7.2.0
 requests==2.18.4
 urllib3==1.22
 Werkzeug==0.14.1
