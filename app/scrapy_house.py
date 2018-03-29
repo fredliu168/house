@@ -1,10 +1,12 @@
 # -*- coding: UTF-8 -*-
 
-from bs4 import BeautifulSoup
 import datetime
+
+from bs4 import BeautifulSoup
 from  model.room import *
-from  model.image import *
 from  model.user import *
+
+from  app.model.image import *
 
 
 class HouseScrap(object):

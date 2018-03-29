@@ -4,4 +4,4 @@ __pycache__/
 *$py.class
 .idea
 avatar
-static
+app/static

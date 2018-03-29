@@ -2,11 +2,14 @@
 # 抓取出租的信息
 
 
-from bs4 import BeautifulSoup
 import datetime
-from  model.room import *
-from  model.image import *
-from  model.user import *
+
+from bs4 import BeautifulSoup
+from  app.model.room import *
+from  app.model.user import *
+
+from  app.model.image import *
+
 
 class RentHouseScrap(object):
     # 抓取出租房屋信息
@@ -254,6 +257,6 @@ if __name__ == '__main__':
     url = 'https://www.dehuaca.com/house.php?mod=view&post_id=515491'
 
     rent_house = RentHouseScrap()
-    #rent_house._scrap_detail(url)
+    # rent_house._scrap_detail(url)
 
     rent_house.scrap()

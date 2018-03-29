@@ -2,13 +2,12 @@
 # 提供数据接口
 # 2018.3.14
 
-from flask import Flask, Response, jsonify
-import util
-import config
-from  model.room import *
+from flask import Flask, Response, jsonify,current_app
 import re
-import scrapy_house
-import scrapy_rent_house
+from app import scrapy_rent_house
+from app import util
+from app import scrapy_house
+from app.model.room import *
 
 
 class MyResponse(Response):
@@ -60,7 +59,7 @@ def scrap_rent_house():
 def source_img(image_name):
     # 获取资源文件
 
-    img_local_path = "{}/{}".format(config.g_source_img_dir, image_name)
+    img_local_path = "{}/{}".format(current_app.config['g_source_img_dir'], image_name)
 
     img_stream = ''
 
@@ -76,7 +75,7 @@ def source_img(image_name):
 @app.route("/banner")
 def banner():
     # 返回标题图片
-    img_local_path = "{}".format(config.g_banner_dir)
+    img_local_path = "{}".format(current_app.config['g_banner_dir'])
 
     img_stream = ''
 
@@ -97,11 +96,11 @@ def room_image(imageid):
     :return:
     """
     if imageid == 'default':  # 设置默认图片
-        img_local_path = config.g_default_room_dir
+        img_local_path = current_app.config['g_default_room_dir']
     else:
 
         ret = dbManager.exec_sql("select path from image where name='{name}'".format(name=imageid))
-        img_local_path = "{}/{}".format(config.g_room_img_dir, ret[0]['path'])
+        img_local_path = "{}/{}".format(current_app.config['g_room_img_dir'], ret[0]['path'])
 
     img_stream = ''
 
@@ -122,9 +121,9 @@ def avatar(imageid):
     :return:
     """
     if imageid == 'default' or imageid == 'null':  # 设置默认图片
-        img_local_path = config.g_default_avatar_dir
+        img_local_path = current_app.config['g_default_avatar_dir']
     else:
-        img_local_path = "{}/{}".format(config.g_avatar_dir, imageid)
+        img_local_path = "{}/{}".format(current_app.config['g_avatar_dir'], imageid)
 
     print(img_local_path)
     img_stream = ''
