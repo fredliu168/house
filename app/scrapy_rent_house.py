@@ -1,15 +1,10 @@
 # -*- coding: UTF-8 -*-
 # 抓取出租的信息
-
-
 import datetime
-
 from bs4 import BeautifulSoup
 from  app.model.room import *
 from  app.model.user import *
-
 from  app.model.image import *
-
 
 class RentHouseScrap(object):
     # 抓取出租房屋信息
@@ -21,7 +16,7 @@ class RentHouseScrap(object):
         }
 
     def scrap(self):
-        for page in range(1, 10):
+        for page in range(1, 2):
             self._scrap(self.url.format(page=page))
 
     def _scrap(self, url):

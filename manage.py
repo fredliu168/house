@@ -2,10 +2,11 @@
 import os
 
 from app import create_app
-from flask.ext.script import Manager
+from flask_script import Manager
 
-app = create_app('default')
+app = create_app('docker')
 manager = Manager(app)
 
 if __name__ == '__main__':
-    manager.run()
+    #manager.run()
+    app.run()

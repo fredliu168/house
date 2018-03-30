@@ -122,6 +122,20 @@ docker container restart  fred-mysql
 
 > 数据库名称 house
 
+## BANNER 标题栏滚动图片
+
+```
+#20180330 暂时未启用
+    id  int
+    name VARCHAR(256) 标题栏图片名称
+    title VARCHAR(256) 标题栏图片标题
+    description VARCHAR(10240) 内容描述
+    post_time datetime 发布时间
+    start_time  datetime  --开始展示时间
+    end_time    datetime  --结束展示时间
+
+```
+
 ## USER 发布用户信息
 
 ```py
@@ -236,7 +250,6 @@ url       varchar(512) --图片存放地址
 ```
 
 
-
 # 实现步骤:
 
 1.采集数据
@@ -250,54 +263,7 @@ url       varchar(512) --图片存放地址
 5.用户认领,绑定采集的手机号码
 
 
-# flask 对外接口
 
-
-抓取销售的房产
-```html
-GET /scarp-house
-```
-
-更新租房信息
-```html
-GET /scarp-rent-house
- ```
- 
-## 1.获取房产信息
-
-
-```html
-
-/GET
-/house/<int:page>
-page 分页 
-```
-## 2.获取用户头像
-
-```html
-/GET
-/avatar/<imageid>
-
-```
-
-## 3.获取房产图片
-
-```html
-/GET
-/image/<imageid>
-```
-
-## 4.查询销售房产
-
-```html
-GET /sell-search-house/<key_word>/<int:page>
-```
-
-## 5.销售房产各种排序
-
-```html
-GET /sell-cond-house/<orderby>/<int:page>
-```
 
 # 怎么搭建微信小程序的本地测试服务器
 

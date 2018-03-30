@@ -7,30 +7,43 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 
+# 注意 配置需要大写才能加到配置项里去 2018.3.30
 class Config:
-    g_room_img_dir = '{}/static/images/room'.format(basedir)  # 保存房产图片的路径
-    g_avatar_dir = '{}/static/images/avatar'.format(basedir)  # 保存头像路径
-    g_default_room_dir = '{}/static/images/default_room.jpg'.format(basedir)  # 默认房屋图片
-    g_default_avatar_dir = '{}/static/images/default_avatar.jpg'.format(basedir)  # 默认用户头像图片
-    # 标题栏图片
-    g_banner_dir = '{}/static/images/banner/banner.png'.format(basedir)
+    image_dir = '{}/upload/images'.format(basedir)  # 图片的存储路径
+
+    ROOM_IMG_DIR = '{}/room'.format(image_dir)  # 保存房产图片的路径
+    AVATAR_DIR = '{}/avatar'.format(image_dir)  # 保存头像路径
+    DEFAULT_ROOM_DIR = '{}/default_room.jpg'.format(image_dir)  # 默认房屋图片
+    DEFAULT_AVATAR_DIR = '{}/default_avatar.jpg'.format(image_dir)  # 默认用户头像图片
+    BANNER_DIR = '{}/banner/banner.jpg'.format(image_dir)
     # 获取资源文件
-    g_source_img_dir = '{}/static/images/source'.format(basedir)
+    SOURCE_IMG_DIR = '{}/source'.format(image_dir)
 
     # mysql
-    mysql_passwd = 'house'
-    mysql_db = 'fred123456'
-    mysql_user = 'root'
-    mysql_host = '127.0.0.1'
-    mysql_port = 3306
+    DB_PWD = 'fred123456'
+    DB_DATABASE = 'house'
+    DB_USER = 'root'
+    DB_HOST = '127.0.0.1'
+    DB_PORT = 3306
 
     @staticmethod
     def init_app(app):
         pass
 
 
+class DockerConfig(Config):
+    DB_HOST = 'mysqlserver'
+
+    @classmethod
+    def init_app(cls, app):
+        Config.init_app(app)
+
+
 class ProductionConfig(Config):
-    pass
+    @classmethod
+    def init_app(cls, app):
+        Config.init_app(app)
 
 
-config = {'default': ProductionConfig}
+config = {'docker': DockerConfig,
+          'default': ProductionConfig}

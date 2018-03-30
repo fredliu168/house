@@ -8,133 +8,11 @@ from app import scrapy_rent_house
 from app import util
 from app import scrapy_house
 from app.model.room import *
-
-
-class MyResponse(Response):
-    @classmethod
-    def force_type(cls, response, environ=None):
-        if isinstance(response, (list, dict)):
-            response = jsonify(response)
-        return super(Response, cls).force_type(response, environ)
-
-
-app = Flask(__name__)
-app.response_class = MyResponse
-
-
-@app.route("/scarp-house")
-def scrap_house():
-    # 抓取更新房产数据
-    result = {"code": 10000, "value": "", "msg": "抓取销售楼盘成功"}
-
-    houseScrap = scrapy_house.HouseScrap()
-    try:
-        houseScrap.srcap()
-
-    except ValueError as err:
-        result['msg'] = "抓取销售楼盘错误:{}".format(err)
-        result['code'] = -10000
-
-    return result
-
-@app.route("/scarp-rent-house")
-def scrap_rent_house():
-    # 抓取更新房产数据
-    result = {"code": 10000, "value": "", "msg": "抓取租房成功"}
-
-    rent_house = scrapy_rent_house.RentHouseScrap()
-
-    try:
-        rent_house.scrap()
-    except ValueError as err:
-        result['msg'] = "抓取销售楼盘错误:{}".format(err)
-        result['code'] = -10000
+from . import api
 
 
 
-    return result
-
-
-@app.route("/source/<image_name>")
-def source_img(image_name):
-    # 获取资源文件
-
-    img_local_path = "{}/{}".format(current_app.config['g_source_img_dir'], image_name)
-
-    img_stream = ''
-
-    print(img_local_path)
-
-    with open(img_local_path, 'rb') as img_f:
-        img_stream = img_f.read()
-
-    resp = Response(img_stream, mimetype="image/jpeg")
-    return resp
-
-
-@app.route("/banner")
-def banner():
-    # 返回标题图片
-    img_local_path = "{}".format(current_app.config['g_banner_dir'])
-
-    img_stream = ''
-
-    print(img_local_path)
-
-    with open(img_local_path, 'rb') as img_f:
-        img_stream = img_f.read()
-
-    resp = Response(img_stream, mimetype="image/jpeg")
-    return resp
-
-
-@app.route("/image/<imageid>")
-def room_image(imageid):
-    """
-    返回房间的图片
-    :param imageid:
-    :return:
-    """
-    if imageid == 'default':  # 设置默认图片
-        img_local_path = current_app.config['g_default_room_dir']
-    else:
-
-        ret = dbManager.exec_sql("select path from image where name='{name}'".format(name=imageid))
-        img_local_path = "{}/{}".format(current_app.config['g_room_img_dir'], ret[0]['path'])
-
-    img_stream = ''
-
-    print(img_local_path)
-
-    with open(img_local_path, 'rb') as img_f:
-        img_stream = img_f.read()
-
-    resp = Response(img_stream, mimetype="image/jpeg")
-    return resp
-
-
-@app.route("/avatar/<imageid>")
-def avatar(imageid):
-    """
-    返回头像
-    :param imageid:
-    :return:
-    """
-    if imageid == 'default' or imageid == 'null':  # 设置默认图片
-        img_local_path = current_app.config['g_default_avatar_dir']
-    else:
-        img_local_path = "{}/{}".format(current_app.config['g_avatar_dir'], imageid)
-
-    print(img_local_path)
-    img_stream = ''
-    with open(img_local_path, 'rb') as img_f:
-        img_stream = img_f.read()
-
-    resp = Response(img_stream, mimetype="image/jpeg")
-    return resp
-
-
-@app.route("/rent-room/<sha_identity>")
+@api.route("/rent-room/<sha_identity>")
 def get_rent_room_detail(sha_identity):
     # 获取租赁信息
     result = {"code": 10000, "value": "", "msg": ""}
@@ -179,7 +57,7 @@ def get_rent_room_detail(sha_identity):
     return result
 
 
-@app.route("/room/<sha_identity>")
+@api.route("/sell-room/<sha_identity>")
 def get_room_detail(sha_identity):
     result = {"code": 10000, "value": "", "msg": ""}
     sql = """
@@ -266,7 +144,7 @@ def get_rent_house(sql, page):
     return result
 
 
-@app.route("/rent-cond-house/<orderby>/<int:page>")
+@api.route("/rent-cond-house/<orderby>/<int:page>")
 def rent_house_orderby(orderby, page):
     # 对租房信息进行排序 orderby = '1_1_1_1'
     # 第1个条件 1-5
@@ -336,7 +214,7 @@ def rent_house_orderby(orderby, page):
     return get_rent_house(sql, page)
 
 
-@app.route("/rent-search-house/<key_word>/<int:page>")
+@api.route("/rent-search-house/<key_word>/<int:page>")
 def rent_search_house(key_word, page):
     # 对字符进行过滤
     r1 = u'[a-zA-Z0-9’!"#$%&\'()*+,-./:;<=>?@，。?★、…【】《》？“”‘’！[\\]^_`{|}~]+'  # 用户也可以在此进行自定义过滤字符
@@ -354,7 +232,7 @@ def rent_search_house(key_word, page):
     return get_rent_house(sql, page)
 
 
-@app.route("/rent-house/<int:page>")
+@api.route("/rent-house/<int:page>")
 def rent_house(page=1):
     # 返回出租房屋
 
@@ -367,7 +245,7 @@ def rent_house(page=1):
     return get_rent_house(sql, page)
 
 
-@app.route("/sell-cond-house/<orderby>/<int:page>")
+@api.route("/sell-cond-house/<orderby>/<int:page>")
 def sell_house_orderby(orderby, page):
     # 对买房信息进行排序 orderby = '1_1_1_1'
     # 第1个条件 1-5
@@ -437,7 +315,7 @@ def sell_house_orderby(orderby, page):
     return get_rent_house(sql, page)
 
 
-@app.route("/sell-search-house/<key_word>/<int:page>")
+@api.route("/sell-search-house/<key_word>/<int:page>")
 def sell_room_search(key_word, page):
     # 买房查询
     # 对字符进行过滤
@@ -456,7 +334,7 @@ def sell_room_search(key_word, page):
     return get_rent_house(sql, page)
 
 
-@app.route("/house/<int:page>")
+@api.route("/house/<int:page>")
 def house(page=1):
     # 返回格式
     result = {"code": 10000, "value": "", "msg": ""}
@@ -502,7 +380,7 @@ r.phone = u.phone ORDER BY r.`post_time` DESC  LIMIT {page}, {offset}""".format(
 
 
 if __name__ == "__main__":
-    app.run(threaded=True, host='0.0.0.0', port=5000)
+    api.run(threaded=True, host='0.0.0.0', port=5000)
 
     # rent_house_orderby('1_1_1_1', 1)
 

@@ -3,9 +3,8 @@
 import datetime
 
 from bs4 import BeautifulSoup
-from  model.room import *
-from  model.user import *
-
+from  app.model.room import *
+from  app.model.user import *
 from  app.model.image import *
 
 
@@ -18,7 +17,7 @@ class HouseScrap(object):
 
     def srcap(self):
 
-        for index in range(1, 10):
+        for index in range(1, 2):
             url = self.url.format(index=index)
             print(url)
             self._scrap(url)
@@ -210,28 +209,36 @@ class HouseScrap(object):
 
                 if val != None:
                     val_txt = val.get_text().replace('\n', '').replace('\r', '').replace('\n', '').strip()
+                    print("val_txt:"+val_txt)
 
-                    if des_txt == '房屋面积' and util.is_number(val_txt[:-1]):
-                        val_txt = float(val_txt[:-1])
-                    else:
-                        val_txt = 0
+                    tem_val = val_txt
 
-                    if des_txt == '房屋单价' and util.is_number(val_txt[:-3]):
-                        val_txt = float(val_txt[:-3])
-                    else:
-                        val_txt = 0
+                    if des_txt == '房屋面积' :
+                        if util.is_number(tem_val[:-1]):
+                            val_txt = float(tem_val[:-1])
+                        else:
+                            val_txt = 0
 
-                    if des_txt == '当前楼层'and util.is_number(val_txt):
-                        if val_txt == '': val_txt = 0
-                        val_txt = int(val_txt)
-                    else:
-                        val_txt = 0
+                    if des_txt == '房屋单价':
+                        print("房屋单价:{}".format(tem_val))
+                        if util.is_number(tem_val[:-3]):
+                            val_txt = float(tem_val[:-3])
+                        else:
+                            val_txt = 0
 
-                    if des_txt == '总楼层' and util.is_number(val_txt):
-                        if val_txt == '': val_txt = 0
-                        val_txt = int(val_txt)
-                    else:
-                        val_txt = 0
+                    if des_txt == '当前楼层':
+                        if util.is_number(tem_val):
+                            if val_txt == '': val_txt = 0
+                            val_txt = int(tem_val)
+                        else:
+                            val_txt = 0
+
+                    if des_txt == '总楼层' :
+                        if util.is_number(tem_val):
+                            if val_txt == '': val_txt = 0
+                            val_txt = int(tem_val)
+                        else:
+                            val_txt = 0
 
                     if des_txt == '房屋厨卫':
                         if val_txt == '是':
