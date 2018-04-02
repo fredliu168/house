@@ -1,6 +1,8 @@
 # docker 相关操作
 > 2018-03-30
 
+>Docker —— 从入门到实践 https://yeasy.gitbooks.io/docker_practice/content/compose/wordpress.html
+
 ### alpine 相关操作
 
 进入alpine容器,由于alpine没有自带命令行,所以使用sh运行容器,然后用attach进入容器:
