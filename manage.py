@@ -8,5 +8,5 @@ app = create_app('docker')
 manager = Manager(app)
 
 if __name__ == '__main__':
-    #manager.run()
-    app.run()
+    # manager.run()
+    app.run(debug=True, host='0.0.0.0')

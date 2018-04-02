@@ -1,16 +1,28 @@
-web:
-  build: .
-  command: python /code/manage.py
-  ports:
-   - "5000:5000"
-  volumes:
-   - .:/code
-  links:
-   - db
-  hostname: myappserver
-db:
-  hostname: mysqlserver
-  image: mysql:5.7.21
-  environment:
-     MYSQL_ROOT_PASSWORD: fred123456
-     MYSQL_DATABASE: house
+version: '3'
+
+services:
+  mysql:
+    hostname: mysqlserver
+    image: mysql:5.7.21
+    volumes:
+        - /Users/fredliu/Documents/PycharmProjects/docker_v/mysql1:/var/lib/mysql
+
+    ports:
+        - "3306:3306"
+    environment:
+        MYSQL_ROOT_PASSWORD: fred123456
+        MYSQL_DATABASE: house
+
+  web:
+    build: .
+    command: python manage.py
+    ports:
+     - "5000:5000"
+    volumes:
+     - .:/code
+     - ./upload:/code/upload
+    depends_on:
+     - mysql
+    links:
+    -  "mysql:mysql"
+    hostname: myappserver

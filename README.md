@@ -96,6 +96,30 @@ docker start fred-mysql
 docker start mynginx
 ```
 
+列出镜像
+docker images
+
+删除悬空none镜像
+
+docker rmi $(docker images -f "dangling=true" -q)
+
+删除容器
+
+docker rm container_id
+
+删除镜像
+
+docker image rm image_id
+
+生成镜像
+
+docker build -t house .
+
+运行容器
+
+
+
+
 
 1.查看终止状态的容器可以用 
 

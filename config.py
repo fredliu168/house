@@ -32,7 +32,9 @@ class Config:
 
 
 class DockerConfig(Config):
-    DB_HOST = 'mysqlserver'
+    DB_HOST = 'mysql'
+
+    # mysqlserver
 
     @classmethod
     def init_app(cls, app):
