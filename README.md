@@ -21,6 +21,9 @@
 
 > 发布1.0版本,实现卖房和租房模块开发
 
+> 2018.4.2 
+
+> 完成docker-compse测试
 
 #开发环境:
 
@@ -73,7 +76,7 @@ Mysql Docker 操作指南
 
 docker pull mysql:5.7.21
 
-docker run --name fred-mysql -p 3306:3306 -v /Users/fred/PycharmProjects/docker_v/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=fred123456 -d mysql:5.7.21
+docker run --name fred-mysql -p 3306:3306 -v /Users/fredliu/Documents/PycharmProjects/docker_v/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=fred123456 -d mysql:5.7.21
 
 -p 3306:3306：将容器的3306端口映射到主机的3306端口
 
@@ -110,23 +113,7 @@ docker rm container_id
 删除镜像
 
 docker image rm image_id
-
-生成镜像
-
-docker build -t house .
-
-运行容器
-
-
-
-
-
-1.查看终止状态的容器可以用 
-
-```cmd 
-docker container ls -a 
-
-```
+ 
 
 2.启动终止状态的容器
 ```cmd
