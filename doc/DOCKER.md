@@ -24,7 +24,7 @@ docker attach <container_id>
 #如果从这个 stdin 中 exit，不会导致容器的停止。这就是为什么推荐大家使用 docker exec 的原因。
 docker exec -it <container_id> /bin/sh
 
-docker exec -it f8ec7d7ccff4 /bin/sh
+docker exec -it 5a704de602cc /bin/sh
 ```
 
 ###  linux终端中输入sh命令后无法退出
@@ -49,7 +49,7 @@ docker build -t dehua_house:v1 .
 ### 运行容器
 
 ```
-docker run -d -p 5000:5000 --name myhouse -v /Users/fredliu/Documents/PycharmProjects/house/upload:/code/upload dehua_house:v1
+docker run -d -p 5000:5000 --name myhouse --link=fred-mysql:db -v /Users/fredliu/Documents/PycharmProjects/house:/code -v /Users/fredliu/Documents/PycharmProjects/house/upload:/code/upload dehua_house:v1
 ```
 
 ### 推送到仓库

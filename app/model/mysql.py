@@ -51,7 +51,7 @@ class MysqlManager(object):
     #     self.__connect = None
     #     self.__cursor = None
 
-    def init_app(self,app):
+    def init_app(self, app):
 
         self.__db = app.config['DB_DATABASE']
         self.__user = app.config['DB_USER']
@@ -242,8 +242,6 @@ class MysqlManager(object):
             self._close_db()
 
         return True
-
-
 
 
 if __name__ == '__main__':

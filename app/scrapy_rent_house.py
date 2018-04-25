@@ -21,7 +21,7 @@ class RentHouseScrap(object):
 
     def _scrap(self, url):
         r = requests.get(url, headers=self.headers)
-        soup = BeautifulSoup(r.content, 'lxml')
+        soup = BeautifulSoup(r.text, 'lxml')
         house_table = soup.find('table', class_='dt ')
         house_trs = house_table.find_all('tr')
 
@@ -42,7 +42,7 @@ class RentHouseScrap(object):
         room.url = url
 
         r = requests.get(url, headers=self.headers)
-        soup = BeautifulSoup(r.content, 'lxml')
+        soup = BeautifulSoup(r.text, 'lxml')
         # print(soup.prettify())
 
         # 获取标题 index_content_title

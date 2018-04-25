@@ -299,3 +299,11 @@ Mac环境
 docker run -d --name weixin-nginx -v /Users/fred/PycharmProjects/docker_v/nginx/conf/nginx.conf:/etc/nginx/nginx.conf:ro nginx
 
 ```
+
+Git pull 强制覆盖本地文件
+
+```
+git fetch --all
+git reset --hard origin/master
+git pull
+```

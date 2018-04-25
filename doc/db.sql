@@ -9,10 +9,13 @@ CREATE TABLE `image` (
   `name` varchar(64) DEFAULT NULL COMMENT '图片名称',
   `post_time` datetime DEFAULT NULL COMMENT '上传照片时间',
   `path` varchar(512) DEFAULT NULL COMMENT '图片存放路径',
+  `url` varchar(512) DEFAULT NULL COMMENT '图片url',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`),
   KEY `room_sha_identity` (`room_sha_identity`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
 -- 创建用户表
 
 CREATE TABLE `user` (

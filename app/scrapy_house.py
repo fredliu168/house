@@ -3,9 +3,17 @@
 import datetime
 
 from bs4 import BeautifulSoup
-from  app.model.room import *
-from  app.model.user import *
-from  app.model.image import *
+from app.model.room import *
+from app.model.user import *
+from app.model.image import *
+
+import logging
+
+LOG_FORMAT = "%(asctime)s - %(levelname)s - %(message)s"
+DATE_FORMAT = "%m/%d/%Y %H:%M:%S %p"
+
+# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(filename='my.log', level=logging.DEBUG, format=LOG_FORMAT, datefmt=DATE_FORMAT)
 
 
 class HouseScrap(object):
@@ -20,14 +28,14 @@ class HouseScrap(object):
         for index in range(1, 2):
             url = self.url.format(index=index)
             print(url)
+            logging.info("抓取url:{}".format(url))
             self._scrap(url)
-
 
     def _scrap(self, url):
         r = requests.get(url, headers=self.headers)
-        soup = BeautifulSoup(r.content, 'lxml')
+        soup = BeautifulSoup(r.text, 'lxml')
         # print(soup.prettify())
-        house_table = soup.find('table', class_='dt ')        #
+        house_table = soup.find('table', class_='dt ')  #
         # print(house_table)
         house_trs = house_table.find_all('tr')
         house_json = []
@@ -54,9 +62,11 @@ class HouseScrap(object):
 
                         print(href)
 
+                        logging.info("抓取房屋详情href:{}".format(href))
+
                         room_detail, user, images = self._scrap_detail(href)
 
-                        #users_dic[user.phone] = json.loads(user.toJSON())
+                        # users_dic[user.phone] = json.loads(user.toJSON())
                         # user.descript()
                         # room_detail.descript()
 
@@ -73,12 +83,15 @@ class HouseScrap(object):
 
         # return user_dic
 
-    def _scrap_detail(self,url):
+    def _scrap_detail(self, url):
         room = Room()
         user = User()
 
         r = requests.get(url, headers=self.headers)
-        soup = BeautifulSoup(r.content, 'lxml')
+
+        # logging.info("{}".format(r.text))
+
+        soup = BeautifulSoup(r.text, 'lxml')
 
         # 获取标题 index_content_title
         index_content_title = soup.find('div', class_='index_content_title').find('h1').get_text().replace('[出售]', '')
@@ -109,7 +122,6 @@ class HouseScrap(object):
         room.post_time = date_post_time.strftime('%Y-%m-%d %H:%M:%S')
         room.start_time = date_start_time.strftime('%Y-%m-%d %H:%M:%S')
         room.end_time = date_end_time.strftime('%Y-%m-%d %H:%M:%S')
-
 
         # 获取经纪人信息
         index_content_extracontact_userinfo = soup.find('div', class_='index_content_extracontact_userinfo')
@@ -209,11 +221,11 @@ class HouseScrap(object):
 
                 if val != None:
                     val_txt = val.get_text().replace('\n', '').replace('\r', '').replace('\n', '').strip()
-                    print("val_txt:"+val_txt)
+                    print("val_txt:" + val_txt)
 
                     tem_val = val_txt
 
-                    if des_txt == '房屋面积' :
+                    if des_txt == '房屋面积':
                         if util.is_number(tem_val[:-1]):
                             val_txt = float(tem_val[:-1])
                         else:
@@ -233,7 +245,7 @@ class HouseScrap(object):
                         else:
                             val_txt = 0
 
-                    if des_txt == '总楼层' :
+                    if des_txt == '总楼层':
                         if util.is_number(tem_val):
                             if val_txt == '': val_txt = 0
                             val_txt = int(tem_val)
@@ -288,7 +300,6 @@ class HouseScrap(object):
 
 
 if __name__ == '__main__':
-
-    houseScrap =  HouseScrap()
+    houseScrap = HouseScrap()
 
     houseScrap.srcap()

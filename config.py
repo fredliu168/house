@@ -15,7 +15,7 @@ class Config:
     AVATAR_DIR = '{}/avatar'.format(image_dir)  # 保存头像路径
     DEFAULT_ROOM_DIR = '{}/default_room.jpg'.format(image_dir)  # 默认房屋图片
     DEFAULT_AVATAR_DIR = '{}/default_avatar.jpg'.format(image_dir)  # 默认用户头像图片
-    BANNER_DIR = '{}/banner/banner.jpg'.format(image_dir)
+    BANNER_DIR = '{}/banner/banner.png'.format(image_dir)
     # 获取资源文件
     SOURCE_IMG_DIR = '{}/source'.format(image_dir)
 
@@ -32,7 +32,7 @@ class Config:
 
 
 class DockerConfig(Config):
-    DB_HOST = 'mysql'
+    DB_HOST = 'db'
 
     # mysqlserver
 
