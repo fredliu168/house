@@ -4,5 +4,6 @@ __pycache__/
 *$py.class
 .idea
 avatar
-upload/
+upload/images/room/
+upload/images/avatar/
 projectFilesBackup
