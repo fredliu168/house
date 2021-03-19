@@ -6,7 +6,7 @@ Flask==0.12.2
 Flask-Script==2.0.6
 idna==2.6
 itsdangerous==0.24
-Jinja2==2.10
+Jinja2==2.11.3
 lxml==4.1.1
 MarkupSafe==1.0
 PyMySQL==0.8.0
